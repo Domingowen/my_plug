@@ -22,8 +22,8 @@ export default {
       el: null,
       transformVal: {},
       defaultConfig: {
-        sliderY: true//  true是Y,false是X
-      },
+        sliderY: true
+      }, //  true是Y,false是X
       minY: null,
       minX: null,
       lastTimeDis: null,
@@ -68,7 +68,6 @@ export default {
       this.lastDisY = changedTouches.pageY - this.lastY;
       this.lastX = changedTouches.pageX;
       this.lastY = changedTouches.pageY;
-
       // console.log(event);
     },
     sliderEnd () {
@@ -113,6 +112,7 @@ export default {
     position: absolute;
     width: 100%;
     height: 100%;
+<<<<<<< HEAD
     left: 0;
     right: 0;
     top: 0;
