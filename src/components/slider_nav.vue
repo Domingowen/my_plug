@@ -3,23 +3,42 @@
     <div class="slider_nav_header">
       <ul class="nav_header_list" ref="sliderNav" @touchstart="sliderStart(elNav)" @touchmove="sliderMove(elNav)"
           @touchend="sliderEnd(elNav)">
-        <li>手机</li>
-        <li>电器</li>
-        <li>家居家装</li>
-        <li>洗护</li>
-        <li>母婴</li>
-        <li>美妆</li>
-        <li>鞋子</li>
-        <li>衣服</li>
-        <li>外套</li>
+        <li @touchend="navFn(0)" :class="navActive===0?'active':''">
+          <span>手机</span>
+        </li>
+        <li @touchend="navFn(1)" :class="navActive===1?'active':''">
+          <span>电器</span>
+        </li>
+        <li @touchend="navFn(2)" :class="navActive===2?'active':''">
+          <span>家居家装</span>
+        </li>
+        <li @touchend="navFn(3)" :class="navActive===3?'active':''">
+          <span>家居家装</span>
+        </li>
+        <li @touchend="navFn(4)" :class="navActive===4?'active':''">
+          <span>母婴</span>
+        </li>
+        <li @touchend="navFn(5)" :class="navActive===5?'active':''">
+          <span>美妆</span>
+        </li>
+        <li @touchend="navFn(6)" :class="navActive===6?'active':''">
+          <span>鞋子</span>
+        </li>
+        <li @touchend="navFn(7)" :class="navActive===7?'active':''">
+          <span>衣服</span>
+        </li>
+        <li @touchend="navFn(8)" :class="navActive===8?'active':''">
+          <span>外套</span>
+        </li>
       </ul>
+      <span class="line_bottom"></span>
     </div>
-    <div class="slider_nav_content" ref="sliderContent" @touchstart="sliderStart" @touchmove="sliderMove"
-         @touchend="sliderEnd">
-      <div class="loading">
+    <div class="slider_nav_content">
+      <div class="loading" v-show="loading">
         内容正在加载中.....
       </div>
-      <ul class="nav_content_list">
+      <ul class="nav_content_list" ref="sliderContent" @touchstart="sliderStart(elContent)" @touchmove="sliderMove(elContent)"
+          @touchend="sliderEnd(elContent)">
         <li>
           <div>
             <img
@@ -90,6 +109,9 @@ export default {
       isMove: true,
       isFirst: true,
       step: 1,
+      navActive: 3,
+      loading: false,
+      isActive: true,
       defaultConfig: {
         sliderY: false
       }
@@ -97,6 +119,9 @@ export default {
   },
   methods: {
     sliderStart (el) {
+      if (this.loading) {
+        return;
+      }
       this.minY = document.documentElement.clientHeight - this.elNav.offsetHeight;
       this.minX = document.documentElement.clientWidth - this.elNav.offsetWidth;
       let changedTouches = event.changedTouches[0];
@@ -110,8 +135,13 @@ export default {
       this.isFirst = true;
       this.lastX = this.startX;
       el.style.transition = 'none';
+      this.isActive = true;
     },
     sliderMove (el) {
+      this.isActive = false;
+      if (this.loading) {
+        return;
+      }
       if (!this.isMove) {
         return;
       }
@@ -166,14 +196,13 @@ export default {
     },
     sliderEnd (el) {
       let speedX = (this.lastDisX / this.lastTimeDis) * 100;
-      // console.log(speedX);
       let transformX = transform(el, this.transformVal, 'translate3d').X;
       // let transformY = transform(el, this.transformVal, 'translate3d').Y;
       let targetX = transformX + speedX;
       // let time = Math.abs(speedX * .9);
       // time = time < 300 ? 300 : time;
       // console.log(targetX);
-      console.log(this.minX);
+      // console.log(this.minX);
       if (targetX > 0) {
         targetX = 0;
       }
@@ -187,6 +216,13 @@ export default {
       } else {
         transform(el, this.transformVal, 'translate3d', '' + targetX + ',0,0');
       }
+    },
+    navFn (num) {
+      if (this.isActive) {
+        this.navActive = num;
+      } else {
+        return false
+      }
     }
   },
   mounted () {
@@ -194,7 +230,9 @@ export default {
     this.elContent = this.$refs.sliderContent;
     transform(this.elNav, this.transformVal, 'translate3d', '0,0,0');
     transform(this.elContent, this.transformVal, 'translate3d', '0,0,0');
-
+    document.addEventListener('touchstart', () => {
+      event.preventDefault();
+    })
   }
 };
 </script>
@@ -204,18 +242,35 @@ export default {
     .slider_nav_header {
       width: 100%;
       overflow: hidden;
+      position: relative;
       .nav_header_list {
         display: flex;
         align-items: center;
-        width: 13rem;
+        width: 14rem;
         li {
           font-size: 0.4rem;
           list-style: none;
           margin-left: 0.5rem;
-          height: 1rem;
-          line-height: 1rem;
+          height: .8rem;
+          line-height: .8rem;
+          margin-bottom: .3rem;
           text-align: center;
         }
+        li.active{
+          color: #ff0000;
+        }
+      }
+      .line_bottom{
+        position: absolute;
+        left: 0;
+        bottom: 5px;
+        width: .9rem;
+        border-bottom: 2px solid #ff0000;
+        -webkit-transition: .5s all;
+        -moz-transition: .5s all;
+        -ms-transition: .5s all;
+        -o-transition: .5s all;
+        transition: .5s all;
       }
     }
     .slider_nav_content {
