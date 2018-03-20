@@ -1,15 +1,14 @@
-export default function transform (elem, el, attr, val) {
-  if (!el.transform) {
-    el.transform = {};
+export default function transform (elem, obj, attr, val) {
+  if (!obj.transform) {
+    obj.transform = {};
   }
-  // console.log(el);
   if (arguments.length > 3) {
-    el.transform[attr] = val;
+    obj.transform[attr] = val;
     let sVal = '';
-    for (let s in el.transform) {
+    for (let s in obj.transform) {
       switch (s) {
         case 'translate3d':
-          let valArr = el.transform[s].split(',');
+          let valArr = obj.transform[s].split(',');
           let setVal = '';
           for (let i = 0; i < valArr.length; i++) {
             if (i === valArr.length - 1) {
@@ -24,19 +23,16 @@ export default function transform (elem, el, attr, val) {
       elem.style.WebkitTransform = elem.style.transform = sVal;
     }
   } else {
-    // console.log(el.transform[attr]);
-    // val = el.transform[attr];
-    if (el.transform[attr]) {
+    if (obj.transform[attr]) {
       if (attr === 'translate3d') {
-        let valArr = el.transform[attr].split(',');
-        console.log(valArr);
+        let valArr = obj.transform[attr].split(',');
         val = {
           X: parseFloat(valArr[0]),
           Y: parseFloat(valArr[1]),
           Z: parseFloat(valArr[2])
         };
       } else {
-        val = el.transform[attr];
+        val = obj.transform[attr];
       }
     }
 

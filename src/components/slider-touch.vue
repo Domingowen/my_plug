@@ -22,8 +22,8 @@ export default {
       el: null,
       transformVal: {},
       defaultConfig: {
-        sliderY: true
-      }, //  true是Y,false是X
+        sliderY: true //  true是Y,false是X
+      },
       minY: null,
       minX: null,
       lastTimeDis: null,
@@ -38,7 +38,6 @@ export default {
       this.minY = document.documentElement.clientHeight - this.$refs.sliderContent.offsetHeight;
       this.minX = document.documentElement.clientWidth - this.$refs.sliderContent.offsetWidth;
       // console.log(this.$refs.sliderContent.offsetHeight);
-      console.log(this.$refs.sliderContent);
       document.addEventListener('touchstart', () => {
         event.preventDefault();
       });
@@ -73,10 +72,10 @@ export default {
     sliderEnd () {
       let speedX = (this.lastDisX / this.lastTimeDis) * 100 ? (this.lastDisX / this.lastTimeDis) * 100 : 0;
       let speedY = (this.lastDisY / this.lastTimeDis) * 100 ? (this.lastDisY / this.lastTimeDis) * 100 : 0;
-      this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
-      this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
-      let targetY = this.currentStartY + speedY;
-      let targetX = this.currentStartX + speedX;
+      let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
+      let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
+      let targetY = currentStartY + speedY;
+      let targetX = currentStartX + speedX;
       // console.log(targetY);
       // console.log(this.minY);
       if (targetY > 0) {
@@ -95,7 +94,7 @@ export default {
       if (this.defaultConfig.sliderY) {
         transform(this.el, this.transformVal, 'translate3d', '0,' + targetY + ',0');
       } else {
-        transform(this.el, this.transformVal, 'translate3d', '0,' + targetX + ',0');
+        transform(this.el, this.transformVal, 'translate3d', '' + targetX + ',0,0');
       }
       // console.log(event);
     }
