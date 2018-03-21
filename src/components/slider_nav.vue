@@ -1,38 +1,38 @@
 <template>
   <div class="slider_nav">
-    <div class="slider_nav_header">
-      <ul class="nav_header_list" ref="sliderNav" @touchstart="sliderStart(elNav)" @touchmove="sliderMove(elNav)"
-          @touchend="sliderEnd(elNav)">
-        <li @touchend="navFn(0)" :class="navActive===0?'active':''">
-          <span>手机</span>
-        </li>
-        <li @touchend="navFn(1)" :class="navActive===1?'active':''">
-          <span>电器</span>
-        </li>
-        <li @touchend="navFn(2)" :class="navActive===2?'active':''">
-          <span>家居家装</span>
-        </li>
-        <li @touchend="navFn(3)" :class="navActive===3?'active':''">
-          <span>家居家装</span>
-        </li>
-        <li @touchend="navFn(4)" :class="navActive===4?'active':''">
-          <span>母婴</span>
-        </li>
-        <li @touchend="navFn(5)" :class="navActive===5?'active':''">
-          <span>美妆</span>
-        </li>
-        <li @touchend="navFn(6)" :class="navActive===6?'active':''">
-          <span>鞋子</span>
-        </li>
-        <li @touchend="navFn(7)" :class="navActive===7?'active':''">
-          <span>衣服</span>
-        </li>
-        <li @touchend="navFn(8)" :class="navActive===8?'active':''">
-          <span>外套</span>
-        </li>
-      </ul>
-      <span class="line_bottom"></span>
-    </div>
+    <!--<div class="slider_nav_header">-->
+      <!--<ul class="nav_header_list" ref="sliderNav" @touchstart="sliderStart(elNav)" @touchmove="sliderMove(elNav)"-->
+          <!--@touchend="sliderEnd(elNav)">-->
+        <!--<li @touchend="navFn(0)" :class="navActive===0?'active':''">-->
+          <!--<span>手机</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(1)" :class="navActive===1?'active':''">-->
+          <!--<span>电器</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(2)" :class="navActive===2?'active':''">-->
+          <!--<span>家居家装</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(3)" :class="navActive===3?'active':''">-->
+          <!--<span>家居家装</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(4)" :class="navActive===4?'active':''">-->
+          <!--<span>母婴</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(5)" :class="navActive===5?'active':''">-->
+          <!--<span>美妆</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(6)" :class="navActive===6?'active':''">-->
+          <!--<span>鞋子</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(7)" :class="navActive===7?'active':''">-->
+          <!--<span>衣服</span>-->
+        <!--</li>-->
+        <!--<li @touchend="navFn(8)" :class="navActive===8?'active':''">-->
+          <!--<span>外套</span>-->
+        <!--</li>-->
+      <!--</ul>-->
+      <!--<span class="line_bottom"></span>-->
+    <!--</div>-->
     <div class="slider_nav_content">
       <div class="loading" v-show="loading">
         内容正在加载中.....
@@ -112,6 +112,7 @@ export default {
       navActive: 3,
       loading: false,
       isActive: true,
+      iNow: 0,
       defaultConfig: {
         sliderY: false
       }
@@ -122,8 +123,10 @@ export default {
       if (this.loading) {
         return;
       }
-      this.minY = document.documentElement.clientHeight - this.elNav.offsetHeight;
-      this.minX = document.documentElement.clientWidth - this.elNav.offsetWidth;
+      this.minY = document.documentElement.clientHeight - el.offsetHeight;
+      this.minX = document.documentElement.clientWidth - el.offsetWidth;
+      // console.log(this.minX);
+      // console.log(this.minY);
       let changedTouches = event.changedTouches[0];
       this.startY = changedTouches.pageY;
       this.startX = changedTouches.pageX;
@@ -169,23 +172,22 @@ export default {
         }
       }
 
-      if (this.defaultConfig.sliderY) {
-        if (totalY > 0) {
-
-        }
-      } else {
-        if (totalX > 0) {
-          this.step = 1 - totalX / document.documentElement.clientWidth;
-          totalX = parseInt(totalX * this.step);
-        }
-        if (totalX < this.minX) {
-          // console.log(this.minX - totalX);
-          let over = this.minX - totalX;
-          this.step = 1 - over / document.documentElement.clientWidth;
-          over = parseInt(this.step * over);
-          totalX = this.minX - over;
-        }
-      }
+      // if (this.defaultConfig.sliderY) {
+      //   if (totalY > 0) {
+      //   }
+      // } else {
+      //   if (totalX > 0) {
+      //     this.step = 1 - totalX / document.documentElement.clientWidth;
+      //     totalX = parseInt(totalX * this.step);
+      //   }
+      //   if (totalX < this.minX) {
+      //     // console.log(this.minX - totalX);
+      //     let over = this.minX - totalX;
+      //     this.step = 1 - over / document.documentElement.clientWidth;
+      //     over = parseInt(this.step * over);
+      //     totalX = this.minX - over;
+      //   }
+      // }
       if (this.isMove) {
         if (this.defaultConfig.sliderY) {
           transform(el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
@@ -193,8 +195,14 @@ export default {
           transform(el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
         }
       }
+      if (Math.abs(disX) > el.clientWidth / 2) {
+        this.changePage(disX, el);
+      }
     },
     sliderEnd (el) {
+      if (this.loading) {
+        return;
+      }
       let speedX = (this.lastDisX / this.lastTimeDis) * 100;
       let transformX = transform(el, this.transformVal, 'translate3d').X;
       // let transformY = transform(el, this.transformVal, 'translate3d').Y;
@@ -221,18 +229,46 @@ export default {
       if (this.isActive) {
         this.navActive = num;
       } else {
-        return false
+        return false;
       }
+    },
+    changePage (disX, el) {
+      let dir = disX / Math.abs(disX);
+      console.log(dir);
+      let target = dir > 0 ? 1 * el.clientWidth : -1 * el.clientWidth;
+      this.iNow -= dir;
+      // console.log(this.iNow);
+      // console.log(target);
+      let arrChild = Array.prototype.slice.call(el.children);
+      if (this.iNow < 0) {
+        this.iNow = arrChild.length - 1;
+      }
+      if (this.iNow >= arrChild.length) {
+        this.iNow = 0;
+      }
+      el.style.transition='.5s all';
+      transform(el, this.transformVal, 'translate3d', ' ' + target + ',0,0');
+      this.loading = true;
+      el.addEventListener('webkitTransitionEnd', this.tranEnd(el));
+    },
+    tranEnd (el) {
+      setTimeout(() => {
+        el.style.transition = 'none';
+        this.loading = false;
+        transform(el, this.transformVal, 'translate3d', '0,0,0');
+      }, 1000);
     }
   },
   mounted () {
-    this.elNav = this.$refs.sliderNav;
-    this.elContent = this.$refs.sliderContent;
-    transform(this.elNav, this.transformVal, 'translate3d', '0,0,0');
-    transform(this.elContent, this.transformVal, 'translate3d', '0,0,0');
-    document.addEventListener('touchstart', () => {
-      event.preventDefault();
-    })
+    this.$nextTick(() => {
+      // this.elNav = this.$refs.sliderNav;
+      this.elContent = this.$refs.sliderContent;
+      // transform(this.elNav, this.transformVal, 'translate3d', '0,0,0');
+      transform(this.elContent, this.transformVal, 'translate3d', '0,0,0');
+      document.addEventListener('touchstart', () => {
+        event.preventDefault();
+      });
+    });
   }
 };
 </script>
@@ -275,14 +311,17 @@ export default {
     }
     .slider_nav_content {
       position: relative;
+      overflow: hidden;
       .loading {
         text-align: center;
         font-size: 0.5rem;
+        transition: 0.5s all;
       }
       .nav_content_list {
         display: flex;
         list-style: none;
         flex-wrap: wrap;
+
         li {
           width: 50%;
           div {
