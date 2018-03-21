@@ -2,12 +2,13 @@ import Vue from 'vue';
 import Router from 'vue-router';
 import Index from '@/components/index';
 import SliderNav from '@/components/slider_nav';
+import PicTouch from '@/components/pic_touch';
 Vue.use(Router);
 export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/nav'
+      redirect: '/pictouch'
     },
     {
       path: '/index',
@@ -18,6 +19,11 @@ export default new Router({
       path: '/nav',
       name: 'nav',
       component: SliderNav
+    },
+    {
+      path: '/pictouch',
+      name: 'pictouch',
+      component: PicTouch
     }
   ]
 });

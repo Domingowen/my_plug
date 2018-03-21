@@ -2,6 +2,7 @@
   <div class="slider_touch">
     <div class="slider_touch_content" ref="sliderTouch" @touchstart="sliderStart" @touchmove="sliderMove"
          @touchend="sliderEnd">
+      <div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>
       <div ref="sliderContent">
         <slot></slot>
       </div>
@@ -30,14 +31,21 @@ export default {
       lastDisY: null,
       lastDisX: null,
       lastY: null,
-      lastX: null
+      lastX: null,
+      loading: false,
+      iNow: 0,
+      isMove: true,
+      isFirst: true,
+      step: 1,
+      isLoading: false
     };
   },
   methods: {
     sliderStart () {
-      this.minY = document.documentElement.clientHeight - this.$refs.sliderContent.offsetHeight;
-      this.minX = document.documentElement.clientWidth - this.$refs.sliderContent.offsetWidth;
-      // console.log(this.$refs.sliderContent.offsetHeight);
+      this.minY = document.documentElement.clientHeight - this.el.offsetHeight;
+      this.minX = document.documentElement.clientWidth - this.el.offsetWidth;
+
+      // console.log(this.el.offsetHeight);
       document.addEventListener('touchstart', () => {
         event.preventDefault();
       });
@@ -50,18 +58,69 @@ export default {
       this.lastX = this.startX;
       this.lastY = this.startY;
       this.el.style.transition = 'none';
+      this.isMove = true;
+      this.isFirst = true;
+      this.step = 1;
     },
     sliderMove () {
+      if (this.loading) {
+        return;
+      }
+      if (!this.isMove) {
+        return;
+      }
       let changedTouches = event.changedTouches[0];
       let disY = changedTouches.pageY - this.startY;
       let disX = changedTouches.pageX - this.startX;
       let totalY = disY + this.currentStartY;
       let totalX = disX + this.currentStartX;
-      if (this.defaultConfig.sliderY) {
-        transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
-      } else {
-        transform(this.el, this.transformVal, 'translate3d', '0,' + totalX + ',0');
+      if (this.isFirst) {
+        this.isFirst = false;
+        if (this.defaultConfig.sliderY) {
+          if (Math.abs(disX) > Math.abs(disY)) {
+            this.isMove = false;
+          }
+        } else {
+          if (Math.abs(disY) > Math.abs(disX)) {
+            this.isMove = false;
+          }
+        }
       }
+      if (this.defaultConfig.sliderY) {
+        if (totalY > 0) {
+          this.step = 1 - totalY / document.documentElement.clientHeight;
+          totalY = parseInt(totalY * this.step);
+        }
+        if (totalY < this.minY) {
+          let over = this.minY - totalY;
+          this.step = 1 - over / document.documentElement.clientHeight;
+          over = parseInt(this.step * over);
+          totalY = this.minY - over;
+        }
+      } else {
+        if (totalX > 0) {
+          this.step = 1 - totalX / document.documentElement.clientWidth;
+          totalX = parseInt(totalX * this.step);
+        }
+        if (totalX < this.minX) {
+          let over = this.minX - totalX;
+          this.step = 1 - over / document.documentElement.clientWidth;
+          over = parseInt(this.step * over);
+          totalX = this.minX - over;
+        }
+      }
+      if (this.isMove) {
+        if (this.defaultConfig.sliderY) {
+          transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
+          if (totalY > 50) {
+            console.log(totalY);
+            this.isLoading = true;
+          }
+        } else {
+          transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
+        }
+      }
+
       this.lastTimeDis = new Date().getTime() - this.lastTimeDis;
       this.lastDisX = changedTouches.pageX - this.lastX;
       this.lastDisY = changedTouches.pageY - this.lastY;
@@ -70,25 +129,40 @@ export default {
       // console.log(event);
     },
     sliderEnd () {
+      if (this.loading) {
+        return;
+      }
       let speedX = (this.lastDisX / this.lastTimeDis) * 100 ? (this.lastDisX / this.lastTimeDis) * 100 : 0;
       let speedY = (this.lastDisY / this.lastTimeDis) * 100 ? (this.lastDisY / this.lastTimeDis) * 100 : 0;
       let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
       let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
       let targetY = currentStartY + speedY;
       let targetX = currentStartX + speedX;
-      // console.log(targetY);
-      // console.log(this.minY);
+      console.log(targetY);
+      console.log(this.minY);
+      if (targetY > 50) {
+        this.isLoading = true;
+        this.refreshFn();
+      } else {
+        this.isLoading = false;
+      }
       if (targetY > 0) {
         targetY = 0;
-      }
-      if (targetY < this.minY) {
-        targetY = this.minY;
+      } else if (targetY < this.minY) {
+        if (this.minY > 0) {
+          targetY = 0;
+        } else {
+          targetY = this.minY;
+        }
       }
       if (targetX > 0) {
         targetX = 0;
-      }
-      if (targetX < this.minX) {
-        targetX = this.minX;
+      } else if (targetX < this.minX) {
+        if (this.minX > 0) {
+          targetX = 0;
+        } else {
+          targetX = this.minX;
+        }
       }
       this.el.style.transition = '1s all';
       if (this.defaultConfig.sliderY) {
@@ -97,10 +171,16 @@ export default {
         transform(this.el, this.transformVal, 'translate3d', '' + targetX + ',0,0');
       }
       // console.log(event);
+    },
+    refreshFn () {
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 1000);
     }
   },
+
   mounted () {
-    this.el = this.$refs.sliderTouch;
+    this.el = this.$refs.sliderContent;
     transform(this.el, this.transformVal, 'translate3d', '0,0,0');
   }
 };
@@ -115,6 +195,12 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
+    .slider_touch_refresh{
+      font-size: 0.5rem;
+      text-align: center;
+      height: 1rem;
+      line-height: 1rem;
+    }
     .slider_touch_content {
       position: absolute;
       width: 100%;

@@ -213,8 +213,7 @@ export default {
       // console.log(this.minX);
       if (targetX > 0) {
         targetX = 0;
-      }
-      if (targetX < this.minX) {
+      } else if (targetX < this.minX) {
         targetX = this.minX;
       }
 
@@ -246,7 +245,7 @@ export default {
       if (this.iNow >= arrChild.length) {
         this.iNow = 0;
       }
-      el.style.transition='.5s all';
+      el.style.transition = '.5s all';
       transform(el, this.transformVal, 'translate3d', ' ' + target + ',0,0');
       this.loading = true;
       el.addEventListener('webkitTransitionEnd', this.tranEnd(el));
