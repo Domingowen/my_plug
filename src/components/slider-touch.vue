@@ -1,11 +1,12 @@
 <template>
   <div class="slider_touch">
-    <div class="slider_touch_content" ref="sliderTouch" @touchstart="sliderStart" @touchmove="sliderMove"
-         @touchend="sliderEnd">
+    <div class="slider_touch_content" ref="sliderTouch">
       <div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>
-      <div ref="sliderContent">
+      <div ref="sliderContent" @touchstart="sliderStart" @touchmove="sliderMove"
+           @touchend="sliderEnd">
         <slot></slot>
       </div>
+      <div class="slider_touch_loading" v-show="getMore">加载更多...</div>
     </div>
   </div>
 </template>
@@ -37,7 +38,8 @@ export default {
       isMove: true,
       isFirst: true,
       step: 1,
-      isLoading: false
+      isLoading: false,
+      getMore: false
     };
   },
   methods: {
@@ -113,8 +115,11 @@ export default {
         if (this.defaultConfig.sliderY) {
           transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
           if (totalY > 50) {
-            console.log(totalY);
+            // console.log(totalY);
             this.isLoading = true;
+          }
+          if (totalY < this.minY - 50) {
+            this.getMore = true;
           }
         } else {
           transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
@@ -146,6 +151,12 @@ export default {
       } else {
         this.isLoading = false;
       }
+      if (targetY < this.minY - 50) {
+        this.getMore = true;
+        this.loadingData();
+      } else {
+        this.getMore = false;
+      }
       if (targetY > 0) {
         targetY = 0;
       } else if (targetY < this.minY) {
@@ -176,6 +187,11 @@ export default {
       setTimeout(() => {
         this.isLoading = false;
       }, 1000);
+    },
+    loadingData () {
+      setTimeout(() => {
+        this.getMore = false;
+      }, 1000);
     }
   },
 
@@ -195,11 +211,22 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
-    .slider_touch_refresh{
+    .slider_touch_refresh {
       font-size: 0.5rem;
       text-align: center;
       height: 1rem;
       line-height: 1rem;
+    }
+    .slider_touch_loading {
+      font-size: 0.5rem;
+      text-align: center;
+      height: 2rem;
+      line-height: 2rem;
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
     }
     .slider_touch_content {
       position: absolute;

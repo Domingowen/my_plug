@@ -19,36 +19,73 @@ export default {
     return {
       startX: null,
       currentStartX: null,
+      startY: null,
+      currentStartY: null,
       iNow: 0,
       el: null,
       transformVal: {},
-      controlStyle: 'drag'
+      controlStyle: 'shade',
+      isMove: true,
+      elWidth: null
     };
   },
   methods: {
     carouselDown () {
       event.preventDefault();
+      this.elWidth = this.el.offsetWidth;
       document.addEventListener('mousemove', this.carouselMove);
       document.addEventListener('mouseup', this.carouselUp);
       console.log(event);
+      // console.log(this.elWidth);
       this.startX = event.pageX;
+      this.startY = event.pageY;
       this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
+      this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
+      this.isMove = true;
     },
     carouselMove () {
       // console.log(event);
+      if (!this.isMove) {
+        return;
+      }
       let disX = event.pageX - this.startX;
       let totalX = disX + this.currentStartX;
-      console.log(totalX);
-      // console.log(totalX);
-      if (this.controlStyle === 'drag') {
+      let disY = event.pageY - this.startY;
+      // let totalY = disY + this.currentStartY;
+      if (Math.abs(disX) < Math.abs(disY)) {
+        this.isMove = false;
+      }
+      // console.log(disX);
+      console.log(this.el.clientWidth / 2);
+      if (Math.abs(disX) > this.el.clientWidth / 2) {
+
+        this.changePage(disX);
+      }
+      let dir = disX / Math.abs(disX);
+      this.iNow -= dir;
+      if (this.iNow >= Array.prototype.slice.call(this.el.children).length) {
+        this.iNow = 0;
+      } else if (this.iNow < 0) {
+        this.iNow = (Array.prototype.slice.call(this.el.children).length - 1);
+      }
+      // let shadeVal = (disX / this.el.children[0].offsetWidth);
+      // console.log(dir);
+      console.log(this.iNow);
+      // console.log(shadeVal);
+      if (this.controlStyle === 'slide') {
         transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
       }
-
+      if (this.controlStyle === 'shade') {
+      }
     },
     carouselUp () {
       document.removeEventListener('mousemove', this.carouselMove);
       document.removeEventListener('mousemove', this.carouselUp);
+    },
+    changePage (disX) {
+
     }
+
   },
   mounted () {
     this.el = this.$refs.carousel;
@@ -62,7 +99,7 @@ export default {
   .carousel_module{
     .carousel_content{
       width: 750px;
-      height: 100%;
+      height: 350px;
       overflow: hidden;
       margin: 0 auto;
       .carousel_list{
@@ -72,6 +109,13 @@ export default {
         cursor: grab;
         li {
           list-style: none;
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 0;
+          bottom: 0;
+          width: 100%;
+          height: 100%;
           font-size: 0;
         }
       }

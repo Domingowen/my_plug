@@ -44,7 +44,48 @@
               alt="沙发">
           </div>
         </li>
-
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
+        <li>
+          <div>
+            <img
+              src="http://yanxuan.nosdn.127.net/2f5e870593c18043e80a21ad885b0616.png?imageView&quality=65&thumbnail=330x330"
+              alt="沙发">
+          </div>
+        </li>
       </ul>
     </slider-touch>
   </div>
