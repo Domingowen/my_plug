@@ -22,11 +22,13 @@ export default {
       startY: null,
       currentStartY: null,
       iNow: 0,
+      iLoopActive: 0,
       el: null,
       transformVal: {},
       controlStyle: 'slide',
       isMove: true,
       elWidth: null,
+      elSingleWidth: null,
       loop: true,
       minX: null
     };
@@ -36,23 +38,32 @@ export default {
       event.preventDefault();
       document.addEventListener('mousemove', this.carouselMove);
       document.addEventListener('mouseup', this.carouselUp);
-      // console.log(event);
-      // console.log(this.elWidth);
+      this.isMove = true;
+      this.elWidth = this.el.offsetWidth;
+      this.elSingleWidth = this.el.children[0].offsetWidth;
+      this.minX = this.el.children[0].offsetWidth - this.elWidth;
+      this.el.style.transition = 'none';
+
       this.startX = event.pageX;
       this.startY = event.pageY;
       this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
       this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
-      this.isMove = true;
-      this.elWidth = this.el.offsetWidth;
-      this.minX = this.el.children[0].offsetWidth - this.elWidth;
-      this.el.style.transition = 'none';
-
+      this.iLoopActive = -Math.round(this.currentStartX / this.elSingleWidth);
       if (this.loop) {
-        console.log(this.currentStartX);
+        if (this.currentStartX === this.minX) {
+          transform(this.el, this.transformVal, 'translate3d', '' + -1 * this.el.children[0].offsetWidth + ', 0, 0');
+          this.iLoopActive = 1;
+        } else if(this.currentStartX === 0) {
+          transform(this.el, this.transformVal, 'translate3d', '' + -(this.el.children.length -2) * this.el.children[0].offsetWidth + ', 0, 0');
+          this.iLoopActive = this.el.children.length - 2;
+        }
       }
+      this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
+      this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
     },
     carouselMove () {
       // console.log(event);
+
       if (!this.isMove) {
         return;
       }
@@ -79,17 +90,17 @@ export default {
       // console.log(this.el.children[0].offsetWidth / 5);
       // console.log();
       let currentX = transform(this.el, this.transformVal, 'translate3d').X;
-      if (Math.abs(disX) > (this.el.children[0].offsetWidth / 7)) {
-        console.log(disX / Math.abs(disX));
-        let dir = disX / Math.abs(disX);
-        if (dir === 1) {
-          this.iNow = -Math.ceil(currentX / this.el.children[0].offsetWidth);
-        } else {
-          this.iNow = -Math.floor(currentX / this.el.children[0].offsetWidth);
-        }
-      }
-      if (this.loop) {
 
+      if (this.loop) {
+        if (Math.abs(disX) > (this.el.children[0].offsetWidth / 8)) {
+          // console.log(disX / Math.abs(disX));
+          let dir = disX / Math.abs(disX);
+          if (dir === 1) {
+            this.iLoopActive = -Math.ceil(currentX / this.el.children[0].offsetWidth);
+          } else {
+            this.iLoopActive = -Math.floor(currentX / this.el.children[0].offsetWidth);
+          }
+        }
       } else {
         if (totalX > 0) {
           totalX = 0;
@@ -115,9 +126,9 @@ export default {
       this.el.style.transition = '0.5s all';
 
       if (this.loop) {
-        transform(this.el, this.transformVal, 'translate3d', '' + (-this.iNow * this.el.children[0].offsetWidth) + ',0,0');
+        transform(this.el, this.transformVal, 'translate3d', '' + (-this.iLoopActive * this.el.children[0].offsetWidth) + ', 0, 0');
       } else {
-        transform(this.el, this.transformVal, 'translate3d', '' + (-this.iNow * this.el.children[0].offsetWidth) + ',0,0');
+        transform(this.el, this.transformVal, 'translate3d', '' + (-this.iNow * this.el.children[0].offsetWidth) + ', 0, 0');
       }
       document.removeEventListener('mousemove', this.carouselMove);
       document.removeEventListener('mousemove', this.carouselUp);
@@ -128,26 +139,23 @@ export default {
 
   },
   mounted () {
-    this.el = this.$refs.carousel;
-    // console.log(this.el);
-
-    let arrList = Array.prototype.slice.call(this.el.children);
-    // console.log(arrList);
-    arrList.forEach((val, index, arr) => {
-    //   transform(val, this.transformVal, 'translate3d', ''+(-index*val.offsetWidth)+',0,0')
-    });
+    let el = this.$refs.carousel;
     if (this.loop) {
-      let lastDom = this.el.children[this.el.children.length - 1].cloneNode(true);
-      this.el.appendChild(this.el.children[0].cloneNode(true));
-      this.el.insertBefore(lastDom, this.el.children[0]);
-      transform(this.el, this.transformVal, 'translate3d', '' +(-(this.iNow+1) * this.el.children[0].offsetWidth)+ ',0,0');
+      let lastDom = el.children[el.children.length - 1].cloneNode(true);
+      el.appendChild(el.children[0].cloneNode(true));
+      el.insertBefore(lastDom, el.children[0]);
+      transform(el, this.transformVal, 'translate3d', '' + (-(this.iNow + 1) * el.children[0].offsetWidth) + ',0,0');
     } else {
-      transform(this.el, this.transformVal, 'translate3d', '0,0,0');
+      transform(el, this.transformVal, 'translate3d', '0,0,0');
     }
+    this.el = el;
+    let arrList = Array.prototype.slice.call(this.el.children);
+    this.el.style.width = arrList.length + '00%';
+    // console.log(arrList);
+    // arrList.forEach((val, index, arr) => {});
   }
 };
 </script>
-
 <style scoped lang="scss">
   .carousel_module{
     .carousel_content{
@@ -156,7 +164,6 @@ export default {
       overflow: hidden;
       margin: 0 auto;
       .carousel_list{
-        width: 500%;
         height: 100%;
         display: flex;
         cursor: grab;
