@@ -43,27 +43,29 @@ export default {
       this.elSingleWidth = this.el.children[0].offsetWidth;
       this.minX = this.el.children[0].offsetWidth - this.elWidth;
       this.el.style.transition = 'none';
-
       this.startX = event.pageX;
       this.startY = event.pageY;
       this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
       this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
       this.iLoopActive = -Math.round(this.currentStartX / this.elSingleWidth);
+      // this.iNow = -Math.round(this.currentStartX / this.elSingleWidth);
+      // console.log(this.iNow);
       if (this.loop) {
         if (this.currentStartX === this.minX) {
           transform(this.el, this.transformVal, 'translate3d', '' + -1 * this.el.children[0].offsetWidth + ', 0, 0');
           this.iLoopActive = 1;
-        } else if(this.currentStartX === 0) {
-          transform(this.el, this.transformVal, 'translate3d', '' + -(this.el.children.length -2) * this.el.children[0].offsetWidth + ', 0, 0');
+        } else if (this.currentStartX === 0) {
+          transform(this.el, this.transformVal, 'translate3d', '' + -(this.el.children.length - 2) * this.el.children[0].offsetWidth + ', 0, 0');
           this.iLoopActive = this.el.children.length - 2;
         }
+      } else {
+
       }
       this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
       this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
     },
     carouselMove () {
       // console.log(event);
-
       if (!this.isMove) {
         return;
       }
@@ -73,27 +75,9 @@ export default {
       if (Math.abs(disX) < Math.abs(disY)) {
         this.isMove = false;
       }
-      // if (Math.abs(disX) > this.el.clientWidth / 2) {
-      // }
-      // let dir = disX / Math.abs(disX);
-      // console.log(dir)
-      // console.log(this.iNow);
-      // if (this.iNow >= Array.prototype.slice.call(this.el.children).length) {
-      //   this.iNow = 0;
-      // } else if (this.iNow < 0) {
-      //   this.iNow = (Array.prototype.slice.call(this.el.children).length - 1);
-      // }
-      // console.log(totalX / this.el.offsetWidth);
-      // console.log(disX / this.el.children[0].offsetWidth);
-      // console.log(disX);
-      // console.log(Math.abs(disX) / Math.abs(disX));
-      // console.log(this.el.children[0].offsetWidth / 5);
-      // console.log();
       let currentX = transform(this.el, this.transformVal, 'translate3d').X;
-
       if (this.loop) {
         if (Math.abs(disX) > (this.el.children[0].offsetWidth / 8)) {
-          // console.log(disX / Math.abs(disX));
           let dir = disX / Math.abs(disX);
           if (dir === 1) {
             this.iLoopActive = -Math.ceil(currentX / this.el.children[0].offsetWidth);
@@ -104,13 +88,10 @@ export default {
       } else {
         if (totalX > 0) {
           totalX = 0;
-          // this.iNow = 0;
         } else if (totalX < this.minX) {
           totalX = this.minX;
-          // this.iNow = Math.round(-currentX / this.el.children[0].offsetWidth);
         }
       }
-
       if (this.controlStyle === 'slide') {
         transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
       }
@@ -124,9 +105,20 @@ export default {
       // console.log( -currentX / this.el.children[0].offsetWidth);
       // if(currentX)
       this.el.style.transition = '0.5s all';
-
       if (this.loop) {
         transform(this.el, this.transformVal, 'translate3d', '' + (-this.iLoopActive * this.el.children[0].offsetWidth) + ', 0, 0');
+        let currentX = transform(this.el, this.transformVal, 'translate3d').X;
+        this.iNow = -Math.round(currentX / this.el.children[0].offsetWidth);
+        this.iNow -= 1;
+        if (currentX === this.minX) {
+          this.iNow = 0;
+        } else if (currentX === 0) {
+          this.iNow = 4;
+        }
+        console.log(this.iNow);
+
+        // console.log(this.iLoopActive - 1);
+        // console.log(transform(this.el, this.transformVal, 'translate3d').X);
       } else {
         transform(this.el, this.transformVal, 'translate3d', '' + (-this.iNow * this.el.children[0].offsetWidth) + ', 0, 0');
       }
@@ -134,17 +126,18 @@ export default {
       document.removeEventListener('mousemove', this.carouselUp);
     },
     changePage (disX) {
-
     }
-
   },
   mounted () {
     let el = this.$refs.carousel;
     if (this.loop) {
+      let firstDom = el.children[0].cloneNode(true);
       let lastDom = el.children[el.children.length - 1].cloneNode(true);
-      el.appendChild(el.children[0].cloneNode(true));
+      el.appendChild(firstDom);
       el.insertBefore(lastDom, el.children[0]);
-      transform(el, this.transformVal, 'translate3d', '' + (-(this.iNow + 1) * el.children[0].offsetWidth) + ',0,0');
+      this.$nextTick(() => {
+        transform(el, this.transformVal, 'translate3d', '' + (-(this.iLoopActive + 1) * el.children[0].offsetWidth) + ',0,0');
+      });
     } else {
       transform(el, this.transformVal, 'translate3d', '0,0,0');
     }
