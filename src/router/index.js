@@ -4,12 +4,13 @@ import Index from '@/components/index';
 import SliderNav from '@/components/slider_nav';
 import PicTouch from '@/components/pic_touch';
 import Carousel from '@/components/carousel';
+import QQContact from '@/components/qq_contact';
 Vue.use(Router);
 export default new Router({
   routes: [
     {
       path: '/',
-      redirect: '/carousel'
+      redirect: '/qq'
     },
     {
       path: '/index',
@@ -30,6 +31,11 @@ export default new Router({
       path: '/carousel',
       name: 'carousel',
       component: Carousel
+    },
+    {
+      path: '/qq',
+      name: 'qq',
+      component: QQContact
     }
   ]
 });
