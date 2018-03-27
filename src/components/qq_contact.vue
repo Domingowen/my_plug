@@ -66,38 +66,6 @@ export default {
           time: '20180325',
           isRead: false,
           isPerson: false
-        },
-        {
-          id: 5,
-          title: 'domingo开车群',
-          text: 'domingo 周末要去哪里浪??',
-          time: '20180325',
-          isRead: false,
-          isPerson: false
-        },
-        {
-          id: 6,
-          title: 'domingo开车群',
-          text: 'domingo 周末要去哪里浪??',
-          time: '20180325',
-          isRead: false,
-          isPerson: false
-        },
-        {
-          id: 7,
-          title: 'domingo开车群',
-          text: 'domingo 周末要去哪里浪??',
-          time: '20180325',
-          isRead: false,
-          isPerson: false
-        },
-        {
-          id: 8,
-          title: 'domingo开车群',
-          text: 'domingo周末要去哪里浪??',
-          time: '20180325',
-          isRead: false,
-          isPerson: false
         }
       ]
     };
@@ -115,12 +83,15 @@ export default {
         width: 100%;
         height: 2.5rem;
         position: relative;
+        list-style: none;
         .wrap{
           width: 100%;
           height: 100%;
           position: absolute;
           left: 0;
           top: 0;
+          right: 0;
+          bottom: 0;
           display: flex;
           background-color: #fff;
           z-index: 20;
@@ -187,8 +158,6 @@ export default {
               width: 50%;
               font-size: 0.6666rem;
               color: #fff;
-              margin-top: -1px;
-              margin-bottom: -1px;
               &:nth-child(1) {
                 background-color: #c7c7cb;
               }

@@ -10,7 +10,6 @@
     </div>
   </div>
 </template>
-
 <script>
 import transform from '../api/transform';
 export default {
@@ -44,13 +43,11 @@ export default {
   },
   methods: {
     sliderStart () {
-      this.minY = document.documentElement.clientHeight - this.el.offsetHeight;
-      this.minX = document.documentElement.clientWidth - this.el.offsetWidth;
-
-      // console.log(this.el.offsetHeight);
       document.addEventListener('touchstart', () => {
         event.preventDefault();
       });
+      this.minY = document.documentElement.clientHeight - this.el.offsetHeight <= 0 ? document.documentElement.clientHeight - this.el.offsetHeight : 0;
+      this.minX = document.documentElement.clientWidth - this.el.offsetWidth <= 0 ? document.documentElement.clientWidth - this.el.offsetWidth : 0;
       let changedTouches = event.changedTouches[0];
       this.startY = changedTouches.pageY;
       this.startX = changedTouches.pageX;
@@ -116,10 +113,10 @@ export default {
           transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
           if (totalY > 50) {
             // console.log(totalY);
-            this.isLoading = true;
+            // this.isLoading = true;
           }
           if (totalY < this.minY - 50) {
-            this.getMore = true;
+            // this.getMore = true;
           }
         } else {
           transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
@@ -143,19 +140,19 @@ export default {
       let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
       let targetY = currentStartY + speedY;
       let targetX = currentStartX + speedX;
-      console.log(targetY);
-      console.log(this.minY);
+      // console.log(targetY);
+      // console.log(this.minY);
       if (targetY > 50) {
-        this.isLoading = true;
-        this.refreshFn();
+        // this.isLoading = true;
+        // this.refreshFn();
       } else {
-        this.isLoading = false;
+        // this.isLoading = false;
       }
       if (targetY < this.minY - 50) {
-        this.getMore = true;
-        this.loadingData();
+        // this.getMore = true;
+        // this.loadingData();
       } else {
-        this.getMore = false;
+        // this.getMore = false;
       }
       if (targetY > 0) {
         targetY = 0;
@@ -194,7 +191,6 @@ export default {
       }, 1000);
     }
   },
-
   mounted () {
     this.el = this.$refs.sliderContent;
     transform(this.el, this.transformVal, 'translate3d', '0,0,0');
