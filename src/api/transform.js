@@ -35,7 +35,6 @@ export default function transform (elem, obj, attr, val) {
         val = obj.transform[attr];
       }
     }
-
     return val;
   }
 }

@@ -1,13 +1,13 @@
 <template>
-  <div class="slider_touch">
-    <div class="slider_touch_content" ref="sliderTouch">
-      <div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>
-      <div ref="sliderContent" @touchstart="sliderStart" @touchmove="sliderMove"
+  <div class="slider_touch" ref="sliderTouch" :style="{height:defaultConfig.configHeight}">
+    <!--<div class="slider_touch_content" ref="sliderTouch">-->
+      <!--<div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>-->
+      <div class="slider_touch_content" ref="sliderContent" @touchstart="sliderStart" @touchmove="sliderMove"
            @touchend="sliderEnd">
         <slot></slot>
       </div>
-      <div class="slider_touch_loading" v-show="getMore">加载更多...</div>
-    </div>
+      <!--<div class="slider_touch_loading" v-show="getMore">加载更多...</div>-->
+    <!--</div>-->
   </div>
 </template>
 <script>
@@ -21,9 +21,11 @@ export default {
       currentStartX: null,
       currentStartY: null,
       el: null,
+      elContent: null,
       transformVal: {},
       defaultConfig: {
-        sliderY: true //  true是Y,false是X
+        sliderY: this.config.sliderY, //  true是Y,false是X,
+        configHeight: this.config.configHeight //这个是可以自定义的
       },
       minY: null,
       minX: null,
@@ -32,22 +34,31 @@ export default {
       lastDisX: null,
       lastY: null,
       lastX: null,
-      loading: false,
-      iNow: 0,
+      // loading: false,
       isMove: true,
       isFirst: true,
-      step: 1,
-      isLoading: false,
-      getMore: false
+      step: 1
+      // isLoading: false,
+      // getMore: false
     };
+  },
+  props: {
+    config: {
+      type: Object,
+      default () {
+        return {
+          sliderY: true,
+          configHeight: '100%'
+        };
+      }
+    }
   },
   methods: {
     sliderStart () {
       document.addEventListener('touchstart', () => {
         event.preventDefault();
       });
-      this.minY = document.documentElement.clientHeight - this.el.offsetHeight <= 0 ? document.documentElement.clientHeight - this.el.offsetHeight : 0;
-      this.minX = document.documentElement.clientWidth - this.el.offsetWidth <= 0 ? document.documentElement.clientWidth - this.el.offsetWidth : 0;
+      this.getClient();
       let changedTouches = event.changedTouches[0];
       this.startY = changedTouches.pageY;
       this.startX = changedTouches.pageX;
@@ -62,9 +73,6 @@ export default {
       this.step = 1;
     },
     sliderMove () {
-      if (this.loading) {
-        return;
-      }
       if (!this.isMove) {
         return;
       }
@@ -109,6 +117,7 @@ export default {
         }
       }
       if (this.isMove) {
+        // this.el.style.transition = '1s all';
         if (this.defaultConfig.sliderY) {
           transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
           if (totalY > 50) {
@@ -121,6 +130,7 @@ export default {
         } else {
           transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
         }
+        // this.el.style.transition = 'none';
       }
 
       this.lastTimeDis = new Date().getTime() - this.lastTimeDis;
@@ -131,9 +141,7 @@ export default {
       // console.log(event);
     },
     sliderEnd () {
-      if (this.loading) {
-        return;
-      }
+      this.el.style.transition = '1s all';
       let speedX = (this.lastDisX / this.lastTimeDis) * 100 ? (this.lastDisX / this.lastTimeDis) * 100 : 0;
       let speedY = (this.lastDisY / this.lastTimeDis) * 100 ? (this.lastDisY / this.lastTimeDis) * 100 : 0;
       let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
@@ -172,7 +180,7 @@ export default {
           targetX = this.minX;
         }
       }
-      this.el.style.transition = '1s all';
+
       if (this.defaultConfig.sliderY) {
         transform(this.el, this.transformVal, 'translate3d', '0,' + targetY + ',0');
       } else {
@@ -181,18 +189,23 @@ export default {
       // console.log(event);
     },
     refreshFn () {
-      setTimeout(() => {
-        this.isLoading = false;
-      }, 1000);
+      // setTimeout(() => {
+      //   this.isLoading = false;
+      // }, 1000);
     },
     loadingData () {
-      setTimeout(() => {
-        this.getMore = false;
-      }, 1000);
+      // setTimeout(() => {
+      //   this.getMore = false;
+      // }, 1000);
+    },
+    getClient () {
+      this.minY = this.elContent.clientHeight - this.el.offsetHeight <= 0 ? this.elContent.clientHeight - this.el.offsetHeight : 0;
+      this.minX = this.elContent.clientWidth - this.el.offsetWidth <= 0 ? this.elContent.clientWidth - this.el.offsetWidth : 0;
     }
   },
   mounted () {
     this.el = this.$refs.sliderContent;
+    this.elContent = this.$refs.sliderTouch;
     transform(this.el, this.transformVal, 'translate3d', '0,0,0');
   }
 };
@@ -202,7 +215,6 @@ export default {
     overflow: hidden;
     position: absolute;
     width: 100%;
-    height: 100%;
     left: 0;
     right: 0;
     top: 0;
@@ -225,13 +237,7 @@ export default {
       width: 100%;
     }
     .slider_touch_content {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      left: 0;
-      right: 0;
-      top: 0;
-      bottom: 0;
+
     }
   }
 </style>

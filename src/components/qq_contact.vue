@@ -1,38 +1,39 @@
 <template>
-<div class="qq_content">
-  <slider-touch>
-    <ul class="qq_container">
-      <li v-for="(item, index) in contactList">
-        <div class="wrap">
-          <div class="qq_avatar">
-            <img src="../assets/avatar.jpg" alt="">
+  <div class="qq_content">
+    <slider-touch :config=config>
+      <ul class="qq_container">
+        <li v-for="(item, index) in contactList">
+          <div class="wrap">
+            <div class="qq_avatar">
+              <img src="../assets/avatar.jpg" alt="">
+            </div>
+            <div class="qq_middle">
+              <p class="title">domingo开车群</p>
+              <p class="text">domingo这周打算去哪里浪??</p>
+            </div>
+            <div class="time">
+              <p>20180325</p>
+              <span>13</span>
+            </div>
           </div>
-          <div class="qq_middle">
-            <p class="title">domingo开车群</p>
-            <p class="text">domingo这周打算去哪里浪??</p>
+          <div class="control">
+            <ul class="control_content">
+              <li>置顶</li>
+              <li>删除</li>
+            </ul>
           </div>
-          <div class="time">
-            <p>20180325</p>
-            <span>13</span>
-          </div>
-        </div>
-        <div class="control">
-          <ul class="control_content">
-            <li>置顶</li>
-            <li>删除</li>
-          </ul>
-        </div>
-      </li>
-    </ul>
-  </slider-touch>
-</div>
+        </li>
+      </ul>
+    </slider-touch>
+  </div>
 </template>
 
 <script>
 import SliderTouch from './slider-touch';
+
 export default {
   name: 'qq_contact',
-  data () {
+  data() {
     return {
       contactList: [
         {
@@ -44,7 +45,7 @@ export default {
           isPerson: false
         },
         {
-          id: 2,
+          id: 1,
           title: 'domingo开车群',
           text: 'domingo 周末要去哪里浪??',
           time: '20180325',
@@ -52,7 +53,7 @@ export default {
           isPerson: false
         },
         {
-          id: 3,
+          id: 1,
           title: 'domingo开车群',
           text: 'domingo 周末要去哪里浪??',
           time: '20180325',
@@ -60,14 +61,94 @@ export default {
           isPerson: false
         },
         {
-          id: 4,
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
+          title: 'domingo开车群',
+          text: 'domingo 周末要去哪里浪??',
+          time: '20180325',
+          isRead: false,
+          isPerson: false
+        },
+        {
+          id: 1,
           title: 'domingo开车群',
           text: 'domingo 周末要去哪里浪??',
           time: '20180325',
           isRead: false,
           isPerson: false
         }
-      ]
+      ],
+      config: {
+        sliderY: true,
+        configHeight: '80%'
+      },
+      config2: {
+        sliderY: false,
+        configHeight: '100%'
+      }
     };
   },
   components: {
@@ -77,16 +158,16 @@ export default {
 </script>
 
 <style scoped lang="scss">
-  .qq_content{
-    .qq_container{
-      li{
+  .qq_content {
+    .qq_container {
+      li {
         width: 100%;
         height: 2.5rem;
         position: relative;
         list-style: none;
-        .wrap{
+        .wrap {
           width: 100%;
-          height: 100%;
+          height: 2.5rem;
           position: absolute;
           left: 0;
           top: 0;
@@ -96,18 +177,18 @@ export default {
           background-color: #fff;
           z-index: 20;
           align-items: center;
-          .qq_avatar{
+          .qq_avatar {
             width: 2.066rem;
             height: 2.0666rem;
             flex: 1;
             padding-left: 0.1rem;
-            img{
+            img {
               width: 100%;
               height: 100%;
               border-radius: 50%;
             }
           }
-          .qq_middle{
+          .qq_middle {
             width: 11.3rem;
             height: 100%;
             display: flex;
@@ -115,7 +196,7 @@ export default {
             justify-content: center;
             flex: 3;
             padding-left: 0.2rem;
-            .title{
+            .title {
               font-size: 0.50666rem;
               font-weight: bold;
               padding-bottom: 0.2666rem;
@@ -125,7 +206,7 @@ export default {
               color: #777777;
             }
           }
-          .time{
+          .time {
             display: flex;
             flex: 1;
             flex-direction: column;
@@ -134,24 +215,24 @@ export default {
             justify-content: center;
             font-size: 0.42666rem;
             color: #bebdbe;
-            p{
+            p {
               padding-bottom: 0.266rem;
             }
-            span{
+            span {
               text-align: center;
             }
           }
         }
-        .control{
+        .control {
           width: 5.333rem;
           height: 100%;
           position: absolute;
           right: 0;
           top: 0;
           z-index: 10;
-          .control_content{
+          .control_content {
             display: flex;
-            li{
+            li {
               display: flex;
               align-items: center;
               justify-content: center;
