@@ -2,8 +2,13 @@
   <div class="contact_list">
     <slider-touch>
       <ul class="contact_content">
-        <li v-for="(item, index) in contactList">
-          {{item.name}}
+        <li v-for="(item, index) in contactSort" v-if="item.data.length!==0">
+         <h1>{{item.letter}}</h1>
+          <ul>
+            <li v-for="(item, index) in item.data">
+              {{item}}
+            </li>
+          </ul>
         </li>
       </ul>
     </slider-touch>
@@ -16,12 +21,36 @@
 </template>
 <script>
 import SliderTouch from './slider-touch';
-
+import pinyin from 'tiny-pinyin';
 export default {
   name: 'we-chat-contact',
   data () {
     return {
       contactList: [
+        {
+          name: '沈',
+          imgUrl: ''
+        },
+        {
+          name: '曾国藩',
+          imgUrl: ''
+        },
+        {
+          name: '发',
+          imgUrl: ''
+        },
+        {
+          name: '个',
+          imgUrl: ''
+        },
+        {
+          name: '长',
+          imgUrl: ''
+        },
+        {
+          name: '好',
+          imgUrl: ''
+        },
         {
           name: '啊',
           imgUrl: ''
@@ -39,22 +68,6 @@ export default {
           imgUrl: ''
         },
         {
-          name: '额',
-          imgUrl: ''
-        },
-        {
-          name: '发',
-          imgUrl: ''
-        },
-        {
-          name: '个',
-          imgUrl: ''
-        },
-        {
-          name: '好',
-          imgUrl: ''
-        },
-        {
           name: '就',
           imgUrl: ''
         },
@@ -63,102 +76,103 @@ export default {
           imgUrl: ''
         },
         {
-          name: 'BMXMEI',
+          name: 'B',
           imgUrl: ''
         },
         {
-          name: 'CMXMEI',
-          imgUrl: ''
-        }, {
-          name: 'DMXMEI',
+          name: 'C',
           imgUrl: ''
         },
         {
-          name: 'EMXMEI',
+          name: 'D',
           imgUrl: ''
         },
         {
-          name: 'FMXMEI',
+          name: 'E',
           imgUrl: ''
         },
         {
-          name: 'GMXMEI',
+          name: 'F',
           imgUrl: ''
         },
         {
-          name: 'HMXMEI',
+          name: 'G',
           imgUrl: ''
         },
         {
-          name: 'IMXMEI',
+          name: 'H',
           imgUrl: ''
         },
         {
-          name: 'JMXMEI',
+          name: 'I',
           imgUrl: ''
         },
         {
-          name: 'KMXMEI',
+          name: 'J',
           imgUrl: ''
         },
         {
-          name: 'LMXMEI',
+          name: 'K',
           imgUrl: ''
         },
         {
-          name: 'NMXMEI',
+          name: 'L',
           imgUrl: ''
         },
         {
-          name: 'MMXMEI',
+          name: 'N',
           imgUrl: ''
         },
         {
-          name: 'OMXMEI',
+          name: 'M',
           imgUrl: ''
         },
         {
-          name: 'PMXMEI',
+          name: 'O',
           imgUrl: ''
         },
         {
-          name: 'QMXMEI',
+          name: 'P',
           imgUrl: ''
         },
         {
-          name: 'RMXMEI',
+          name: 'Q',
           imgUrl: ''
         },
         {
-          name: 'SMXMEI',
+          name: 'R',
           imgUrl: ''
         },
         {
-          name: 'TMXMEI',
+          name: 'S',
           imgUrl: ''
         },
         {
-          name: 'UMXMEI',
+          name: 'T',
           imgUrl: ''
         },
         {
-          name: 'VMXMEI',
+          name: 'U',
           imgUrl: ''
         },
         {
-          name: 'WMXMEI',
+          name: 'V',
           imgUrl: ''
         },
         {
-          name: 'SMXMEI',
+          name: 'W',
           imgUrl: ''
         },
         {
-          name: 'YMXMEI',
+          name: 'S',
           imgUrl: ''
         },
         {
-          name: 'ZMXMEI',
+          name: 'Y',
+          imgUrl: ''
+        },
+        {
+          name: 'Z',
           imgUrl: ''
         }
       ],
@@ -168,18 +182,41 @@ export default {
     };
   },
   mounted () {
+    // let co = new Intl.Collator(["zh-Hans-CN"]);
+    // console.log(co.compare("温广城", "曾国藩"));
+    // co.compare("a", "b"); // Returns -1
+    // pinyin.parse()
     for (let i = 65; i < 91; i++) {
       this.contactPinyin.push(String.fromCharCode(i));
     }
-
-    this.contactPinyin.forEach((val, index, arr) => {
-      let obj = {letter : val, data:[]};
-
-    });
-    this.contactSort = this.contactList.sort((param1, param2) => {
-      return param1.name.localeCompare(param2.name, 'zh');
+    this.contactPinyin.forEach((oVal, oIndex, arr) => {
+      let obj = {letter: oVal, data: []};
+      this.contactList.forEach((val, index, arr) => {
+        // console.log(pinyin.parse(val.name));
+        // if ((!oVal || oVal.localeCompare(pinyin.parse(val.name)[0].target) <= 0) && pinyin.parse(val.name)[0].target.localeCompare(oVal) == -1) {
+        //   obj.data.push(val.name);
+        // }
+        // if (oVal === pinyin.parse(val.name)[0].target) {
+          // obj.data.push(val)
+        // }
+        // console.log(oVal.localeCompare(pinyin.parse(val.name)[0].target) <= 0 && pinyin.parse(val.name)[0].target.localeCompare(oVal) === -1)
+        if (oVal === pinyin.parse(val.name)[0].target.split('')[0]) {
+          obj.data.push(val.name)
+        }
+      });
+      this.contactSort.push(obj);
     });
     console.log(this.contactSort);
+
+    // this.contactList.sort((param1, param2) => {
+    //   return pinyin.parse(param1.name)[0].target.localeCompare(pinyin.parse(param2.name)[0].target)
+    // })
+    // this.contactSort = this.contactList.sort((param1, param2) => {
+    //   return param1.name.localeCompare(param2.name, 'zh-Hans-CN', {sensitivity: 'accent'});
+    // });
+    //
+    // console.log('长'.localeCompare('温广城','zh-Hans-CN'));
+    // console.log(this.contactSort);
   },
   components: {
     SliderTouch
@@ -189,11 +226,17 @@ export default {
 <style scoped lang="scss">
   .contact_content{
     li{
-      height: 1rem;
       line-height: 1rem;
-      padding-left: 0.2rem;
       font-size: 0.4rem;
-      border-bottom: 1px solid #f0f0f0;
+      /*border-bottom: 1px solid #f0f0f0;*/
+      h1{
+        font-size: 0.4rem;
+        background-color: #e75297;
+        color: #ffffff;
+      }
+      li{
+        padding-left: 0.4rem;
+      }
     }
   }
   .contact_sidebar{
