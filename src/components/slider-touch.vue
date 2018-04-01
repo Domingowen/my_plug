@@ -83,8 +83,12 @@
         let changedTouches = event.changedTouches[0];
         let disY = changedTouches.pageY - this.startY;
         let disX = changedTouches.pageX - this.startX;
-        let totalY = disY + this.currentStartY;
-        let totalX = disX + this.currentStartX;
+        this.currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
+        this.currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
+        this.startY = changedTouches.pageY;
+        this.startX = changedTouches.pageX;
+        let totalY = parseInt(disY + this.currentStartY);
+        let totalX = parseInt(disX + this.currentStartX);
         if (this.isFirst) {
           this.isFirst = false;
           if (this.defaultConfig.sliderY) {
@@ -98,27 +102,34 @@
           }
         }
         if (this.defaultConfig.sliderY) {
-          if (totalY > 0) {
-            this.step = 1 - totalY / document.documentElement.clientHeight;
-            totalY = parseInt(totalY * this.step);
+          if (totalY > 0 || totalY < this.minY) {
+            totalY = this.currentStartY + disY / 3;
           }
-          if (totalY < this.minY) {
-            let over = this.minY - totalY;
-            this.step = 1 - over / document.documentElement.clientHeight;
-            over = parseInt(this.step * over);
-            totalY = this.minY - over;
-          }
+          /*下面这种写法会导致拖拉问题停止*/
+          // if (totalY > 0) {
+          //   this.step = 1 - totalY / document.documentElement.clientHeight;
+          //   totalY = parseInt(totalY * this.step);
+          // }
+          // if (totalY < this.minY) {
+          //   let over = this.minY - totalY;
+          //   this.step = 1 - over / document.documentElement.clientHeight;
+          //   over = parseInt(this.step * over);
+          //   totalY = parseInt(this.minY - over);
+          // }
         } else {
-          if (totalX > 0) {
-            this.step = 1 - totalX / document.documentElement.clientWidth;
-            totalX = parseInt(totalX * this.step);
+
+          if (totalX > 0 || totalX < this.minX) {
+            // totalY = c + disY / 3;
+            // totalX = totalX / 3
+            // this.step = 1 - totalX / document.documentElement.clientWidth;
+            totalX = this.currentStartX +disX / 3
           }
-          if (totalX < this.minX) {
-            let over = this.minX - totalX;
-            this.step = 1 - over / document.documentElement.clientWidth;
-            over = parseInt(this.step * over);
-            totalX = this.minX - over;
-          }
+          // if (totalX < this.minX) {
+            // let over = this.minX - totalX;
+            // this.step = 1 - over / document.documentElement.clientWidth;
+            // over = parseInt(this.step * over);
+            // totalX = parseInt(this.minX - over);
+          // }
         }
         if (this.isMove) {
           // this.el.style.transition = '1s all';
@@ -146,50 +157,56 @@
       },
       sliderEnd() {
         this.el.style.transition = '1s all';
-        let speedX = (this.lastDisX / this.lastTimeDis) * 100 ? (this.lastDisX / this.lastTimeDis) * 100 : 0;
-        let speedY = (this.lastDisY / this.lastTimeDis) * 100 ? (this.lastDisY / this.lastTimeDis) * 100 : 0;
+        let speedX = (this.lastDisX / this.lastTimeDis) ? (this.lastDisX / this.lastTimeDis) : 0;
+        let speedY = (this.lastDisY / this.lastTimeDis) ? (this.lastDisY / this.lastTimeDis) : 0;
         let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
         let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
-        let targetY = currentStartY + speedY;
-        let targetX = currentStartX + speedX;
+        if (currentStartY > 0) {
+          currentStartY = 0 ;
+        } else if (currentStartY < this.minY) {
+          currentStartY = this.minY ;
+        }
+        // let targetY = parseInt(currentStartY + speedY);
+        // let targetX = parseInt(currentStartX + speedX);
         // console.log(targetY);
         // console.log(this.minY);
-        if (targetY > 50) {
-          // this.isLoading = true;
-          // this.refreshFn();
-        } else {
-          // this.isLoading = false;
-        }
-        if (targetY < this.minY - 50) {
-          // this.getMore = true;
-          // this.loadingData();
-        } else {
-          // this.getMore = false;
-        }
-        if (targetY > 0) {
-          targetY = 0;
-        } else if (targetY < this.minY) {
-          if (this.minY > 0) {
-            targetY = 0;
-          } else {
-            targetY = this.minY;
-          }
-        }
-        if (targetX > 0) {
-          targetX = 0;
-        } else if (targetX < this.minX) {
-          if (this.minX > 0) {
-            targetX = 0;
-          } else {
-            targetX = this.minX;
-          }
-        }
+        // if (targetY > 50) {
+        //   // this.isLoading = true;
+        //   // this.refreshFn();
+        // } else {
+        //   // this.isLoading = false;
+        // }
+        // if (targetY < this.minY - 50) {
+        //   // this.getMore = true;
+        //   // this.loadingData();
+        // } else {
+        //   // this.getMore = false;
+        // }
+        // if (targetY > 0) {
+        //   targetY = 0;
+        // } else if (targetY < this.minY) {
+        //   if (this.minY > 0) {
+        //     targetY = 0;
+        //   } else {
+        //     targetY = this.minY;
+        //   }
+        // }
+        // if (targetX > 0) {
+        //   targetX = 0;
+        // } else if (targetX < this.minX) {
+        //   if (this.minX > 0) {
+        //     targetX = 0;
+        //   } else {
+        //     targetX = this.minX;
+        //   }
+        // }
 
         if (this.defaultConfig.sliderY) {
-          transform(this.el, this.transformVal, 'translate3d', '0,' + targetY + ',0');
+          transform(this.el, this.transformVal, 'translate3d', '0,' + currentStartY + ',0');
         } else {
-          transform(this.el, this.transformVal, 'translate3d', '' + targetX + ',0,0');
+          transform(this.el, this.transformVal, 'translate3d', '' + currentStartX + ',0,0');
         }
+
         // console.log(event);
       },
       refreshFn() {
