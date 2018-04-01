@@ -71,7 +71,7 @@
         this.lastTimeDis = new Date().getTime();
         this.lastX = this.startX;
         this.lastY = this.startY;
-        this.el.style.transition = 'none';
+        this.el.style.transition = '.5s all';
         this.isMove = true;
         this.isFirst = true;
         this.step = 1;
@@ -103,6 +103,7 @@
         }
         if (this.defaultConfig.sliderY) {
           if (totalY > 0 || totalY < this.minY) {
+            this.el.style.transition = 'none';
             totalY = this.currentStartY + disY / 3;
           }
           /*下面这种写法会导致拖拉问题停止*/
@@ -117,11 +118,12 @@
           //   totalY = parseInt(this.minY - over);
           // }
         } else {
-
           if (totalX > 0 || totalX < this.minX) {
+            this.el.style.transition = 'none';
             // totalY = c + disY / 3;
             // totalX = totalX / 3
             // this.step = 1 - totalX / document.documentElement.clientWidth;
+
             totalX = this.currentStartX +disX / 3
           }
           // if (totalX < this.minX) {
@@ -132,7 +134,7 @@
           // }
         }
         if (this.isMove) {
-          // this.el.style.transition = '1s all';
+
           if (this.defaultConfig.sliderY) {
             transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
             if (totalY > 50) {
@@ -145,7 +147,7 @@
           } else {
             transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
           }
-          // this.el.style.transition = 'none';
+
         }
 
         this.lastTimeDis = new Date().getTime() - this.lastTimeDis;
@@ -156,16 +158,19 @@
         // console.log(event);
       },
       sliderEnd() {
-        this.el.style.transition = '1s all';
+        this.el.style.transition = '.5s all';
         let speedX = (this.lastDisX / this.lastTimeDis) ? (this.lastDisX / this.lastTimeDis) : 0;
-        let speedY = (this.lastDisY / this.lastTimeDis) ? (this.lastDisY / this.lastTimeDis) : 0;
+        let speedY = (this.lastDisY / this.lastTimeDis) * 200 ? (this.lastDisY / this.lastTimeDis)* 200 : 0;
+        console.log(Math.round(speedY));
         let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
         let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
+        currentStartY = currentStartY + speedY;
         if (currentStartY > 0) {
           currentStartY = 0 ;
         } else if (currentStartY < this.minY) {
           currentStartY = this.minY ;
         }
+        // this.el.style.transition = 'none';
         // let targetY = parseInt(currentStartY + speedY);
         // let targetX = parseInt(currentStartX + speedX);
         // console.log(targetY);
