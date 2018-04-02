@@ -2,7 +2,7 @@
   <div class="qq_content">
     <slider-touch :config=config>
       <ul class="qq_container">
-        <li v-for="(item, index) in contactList">
+        <li v-for="(item, index) in contactList" :key="index">
           <div class="wrap">
             <div class="qq_avatar">
               <img src="../assets/avatar.jpg" alt="">
@@ -30,10 +30,9 @@
 
 <script>
 import SliderTouch from './slider-touch';
-
 export default {
   name: 'qq_contact',
-  data() {
+  data () {
     return {
       contactList: [
         {

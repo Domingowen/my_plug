@@ -2,10 +2,10 @@
   <div class="contact_list">
     <slider-touch>
       <ul class="contact_content">
-        <li v-for="(item, index) in contactSort" v-if="item.data.length!==0">
+        <li v-for="(item, index) in contactSort" v-if="item.data.length!==0" :key="index">
          <h1>{{item.letter}}</h1>
           <ul>
-            <li v-for="(item, index) in item.data">
+            <li v-for="(item, index) in item.data" :key="index">
               {{item}}
             </li>
           </ul>
@@ -13,7 +13,7 @@
       </ul>
     </slider-touch>
     <ul class="contact_sidebar">
-      <li v-for="(item, index) in contactPinyin" :class="currentIndex === index?'active':''">
+      <li v-for="(item, index) in contactPinyin" :class="currentIndex === index?'active':''" :key="index">
         {{item}}
       </li>
     </ul>
@@ -182,46 +182,23 @@ export default {
     };
   },
   mounted () {
-    // let co = new Intl.Collator(["zh-Hans-CN"]);
-    // console.log(co.compare("温广城", "曾国藩"));
-    // co.compare("a", "b"); // Returns -1
-    // pinyin.parse()
     for (let i = 65; i < 91; i++) {
       this.contactPinyin.push(String.fromCharCode(i));
     }
     this.contactPinyin.forEach((oVal, oIndex, arr) => {
       let obj = {letter: oVal, data: []};
       this.contactList.forEach((val, index, arr) => {
-        // console.log(pinyin.parse(val.name));
-        // if ((!oVal || oVal.localeCompare(pinyin.parse(val.name)[0].target) <= 0) && pinyin.parse(val.name)[0].target.localeCompare(oVal) == -1) {
-        //   obj.data.push(val.name);
-        // }
-        // if (oVal === pinyin.parse(val.name)[0].target) {
-          // obj.data.push(val)
-        // }
-        // console.log(oVal.localeCompare(pinyin.parse(val.name)[0].target) <= 0 && pinyin.parse(val.name)[0].target.localeCompare(oVal) === -1)
         if (oVal === pinyin.parse(val.name)[0].target.split('')[0]) {
-          obj.data.push(val.name)
+          obj.data.push(val.name);
         }
       });
       this.contactSort.push(obj);
     });
-    console.log(this.contactSort);
-
-    // this.contactList.sort((param1, param2) => {
-    //   return pinyin.parse(param1.name)[0].target.localeCompare(pinyin.parse(param2.name)[0].target)
-    // })
-    // this.contactSort = this.contactList.sort((param1, param2) => {
-    //   return param1.name.localeCompare(param2.name, 'zh-Hans-CN', {sensitivity: 'accent'});
-    // });
-    //
-    // console.log('长'.localeCompare('温广城','zh-Hans-CN'));
-    // console.log(this.contactSort);
   },
   components: {
     SliderTouch
   }
-}
+};
 </script>
 <style scoped lang="scss">
   .contact_content{
