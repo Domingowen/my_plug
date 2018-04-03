@@ -1,5 +1,5 @@
 <template>
-  <div class="slider_touch" >
+  <div class="slider_touch">
     <!--<div class="slider_touch_content" ref="sliderTouch">-->
     <!--<div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>-->
     <div class="slider_wrapper" :style="{height:defaultConfig.configHeight}" ref="sliderTouch">
@@ -44,7 +44,7 @@ export default {
       deltaX: 0,
       deltaY: 0,
       isRun: true,
-      lastTime : 0,
+      lastTime: 0,
       startTime: 0,
       endTime: 0
     };
@@ -73,8 +73,8 @@ export default {
       let changedTouches = event.changedTouches[0];
       this.pointY = changedTouches.pageY;
       this.pointX = changedTouches.pageX;
-      this.lastY = this.pointY;
-      this.lastX = this.pointX;
+      // this.lastY = this.pointY;
+      // this.lastX = this.pointX;
       this.isMove = true;
       this.isFirst = true;
       this.el.style.transitionDuration = '0ms';
@@ -129,7 +129,6 @@ export default {
           totalX = newX + deltaX / 3;
         }
       }
-
       if (this.isMove) {
         if (this.defaultConfig.sliderY) {
           transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
@@ -137,7 +136,7 @@ export default {
           transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
         }
       }
-      if ( timeStamp - this.startTime > 300 ) {
+      if (timeStamp - this.startTime > 300) {
         this.startTime = timeStamp;
         this.startX = newX;
         this.startY = newY;
@@ -145,6 +144,7 @@ export default {
     },
     /*滑动结束*/
     sliderEnd () {
+      this.endTime = new Date().getTime();
       let newY = transform(this.el, this.transformVal, 'translate3d').Y;
       let newX = transform(this.el, this.transformVal, 'translate3d').X;
       // let totalY = newY;
@@ -155,6 +155,7 @@ export default {
       let time = 0;
       let momentumY = null;
       let momentumX = null;
+      // console.log(newY);
       if (newY > 0) {
         newY = 0;
         this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
@@ -169,75 +170,61 @@ export default {
         return;
       }
 
-      if (duration < 300 ) {
-        momentumX = this.getMomentum(newX, this.startX, duration, this.minX,this.elContent.clientHeight);
-        momentumY = this.getMomentum(newY, this.startY, duration, this.minY,this.elContent.clientHeight);
-        console.log(momentumY);
-        newX = momentumX.destination;
+      if (duration < 300) {
+        // momentumX = this.getMomentum(newX, this.startX, duration, this.minX, this.elContent.clientWidth);
+        momentumY = this.getMomentum(newY, this.startY, duration, this.minY, this.elContent.clientHeight);
+        // newX = momentumX.destination;
         newY = momentumY.destination;
-        time = Math.max(momentumX.duration, momentumY.duration);
+        console.log(momentumY);
+        time = Math.max(momentumY.duration);
         this.isInTransition = 1;
       }
-
-      if (this.defaultConfig.sliderY) {
-        transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0 ');
-      } else {
-        transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
+      // console.log(newY);
+      if (newX != transform(this.el, this.transformVal, 'translate3d').X || newY != transform(this.el, this.transformVal, 'translate3d').Y) {
+        // console.log(newY);
+        // console.log(this.maxScrollY);
+        // change easing function when scroller goes out of the boundaries
+        if (newX > 0 || newX < this.minX || newY > 0 || newY < this.minY) {
+          // easing = utils.ease.quadratic;
+        }
+        // console.log(newX);
+        // console.log(newY);
+        if (this.defaultConfig.sliderY) {
+          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          this.el.style.transitionDuration = '600ms';
+          // transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0 ');
+          this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
+        } else {
+          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          this.el.style.transitionDuration = '600ms';
+          transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
+        }
+        return;
       }
-      this.endTime = new Date().getTime();
+
     },
     getMomentum (current, start, time, lowerMargin, wrapperSize, deceleration) {
+      // console.log(current, start, time, lowerMargin, wrapperSize);
       let distance = current - start,
         speed = Math.abs(distance) / time,
         destination,
         duration;
-
       deceleration = deceleration === undefined ? 0.0006 : deceleration;
-
-      destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
+      destination = current + (speed * speed) / (2 * deceleration) * (distance < 0 ? -1 : 1);
       duration = speed / deceleration;
-      // console.log(destination);
-      if ( destination < lowerMargin ) {
-        destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
+      if (destination < lowerMargin) {
+        destination = wrapperSize ? lowerMargin - (wrapperSize / 2.5 * (speed / 8)) : lowerMargin;
         distance = Math.abs(destination - current);
         duration = distance / speed;
-      } else if ( destination > 0 ) {
-        destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
+      } else if (destination > 0) {
+        destination = wrapperSize ? wrapperSize / 2.5 * (speed / 8) : 0;
         distance = Math.abs(current) + destination;
         duration = distance / speed;
       }
-
       return {
         destination: Math.round(destination),
         duration: duration
       };
-      // console.log('current:',current,'start:', start, 'time:', time, 'lowerMargin:',lowerMargin, 'wrapperSize:',wrapperSize, deceleration);
-      // let distance = current - start,
-      //   speed = Math.abs(distance) / time,
-      //   destination,
-      //   duration;
-	  //
-      // deceleration = deceleration === undefined ? 0.0006 : deceleration;
-	  //
-      // destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
-      // duration = speed / deceleration;
-      // // console.log(destination);
-      // // console.log(destination);
-      // if ( destination < lowerMargin ) {
-      //   destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
-      //   distance = Math.abs(destination - current);
-      //   duration = distance / speed;
-	  //
-      // } else if ( destination > 0 ) {
-      //   destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
-      //   distance = Math.abs(current) + destination;
-      //   duration = distance / speed;
-      // }
-
-      // return {
-      //   destination: Math.round(destination),
-      //   duration: duration
-      // };
     },
     refreshFn () {
       // setTimeout(() => {
