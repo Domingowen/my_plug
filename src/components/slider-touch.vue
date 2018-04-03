@@ -1,8 +1,8 @@
 <template>
-  <div class="slider_touch" ref="sliderTouch">
+  <div class="slider_touch" >
     <!--<div class="slider_touch_content" ref="sliderTouch">-->
     <!--<div class="slider_touch_refresh" v-show="isLoading">刷新页面...</div>-->
-    <div class="slider_wrapper" :style="{height:defaultConfig.configHeight}">
+    <div class="slider_wrapper" :style="{height:defaultConfig.configHeight}" ref="sliderTouch">
       <div class="slider_touch_content" ref="sliderContent" @touchstart="sliderStart" @touchmove="sliderMove"
            @touchend="sliderEnd">
         <slot></slot>
@@ -38,17 +38,15 @@ export default {
       lastDisX: null,
       lastY: null,
       lastX: null,
-      // loading: false,
       isMove: true,
       isFirst: true,
       step: 1,
       deltaX: 0,
       deltaY: 0,
       isRun: true,
-      endTime: 0,
-      startTime: 0
-      // isLoading: false,
-      // getMore: false
+      lastTime : 0,
+      startTime: 0,
+      endTime: 0
     };
   },
   props: {
@@ -62,32 +60,39 @@ export default {
       }
     }
   },
+
+
+  /*
+  * 1.所有的滑动只是过程,滑动结束才是对滑动的情况作出预测
+  * 2.滑动的动画控制都在结束之后才执行,滑动的过程中不执行动画
+  * 3.滑动数据都是在开始和过程生存储
+  * */
   methods: {
     sliderStart () {
-
-      if (this.isRun) {
-        this.getClient();
-        this.isRun = false;
-      }
+      this.getClient();
       let changedTouches = event.changedTouches[0];
       this.pointY = changedTouches.pageY;
       this.pointX = changedTouches.pageX;
-      this.startTime = new Date().getTime();
-      // this.lastX = this.startX;
-      // this.lastY = this.startY;
-      // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-      // this.el.style.transitionDuration = '0ms';
+      this.lastY = this.pointY;
+      this.lastX = this.pointX;
       this.isMove = true;
       this.isFirst = true;
-      this.step = 1;
       this.el.style.transitionDuration = '0ms';
+      this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+      this.distY = 0;
+      this.distX = 0;
+      this.startTime = new Date().getTime();
+      this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
+      this.startX = transform(this.el, this.transformVal, 'translate3d').X;
     },
+    /*滑动过程*/
     sliderMove (e) {
       if (!this.isMove) {
         return;
       }
-      this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
-      this.startX = transform(this.el, this.transformVal, 'translate3d').X;
+      let timeStamp = new Date().getTime();
+      let newY = transform(this.el, this.transformVal, 'translate3d').Y;
+      let newX = transform(this.el, this.transformVal, 'translate3d').X;
       let changedTouches = event.changedTouches[0];
       let deltaY = changedTouches.pageY - this.pointY;
       let deltaX = changedTouches.pageX - this.pointX;
@@ -95,42 +100,36 @@ export default {
       this.pointX = changedTouches.pageX;
       this.distY += deltaY;
       this.distX += deltaX;
-      let absDistY = Math.abs(this.distY);
-      let absDistX = Math.abs(this.distX);
-      let timeStamp = new Date().getTime();
-      // let disY = changedTouches.pageY - this.startY;
-      // let disX = changedTouches.pageX - this.startX;
-      // let totalY = parseInt(disY + this.currentStartY);
-      // let totalX = parseInt(disX + this.currentStartX);
-      let totalY = this.startY + deltaY;
-      let totalX = this.startX + deltaX;
-      if (timeStamp - this.endTime > 300 && (absDistY < 10 && absDistX < 10)) {
-        return;
-      }
+      let absDeltaY = Math.abs(deltaY);
+      let absDeltaX = Math.abs(deltaX);
+      let totalY = newY + deltaY;
+      let totalX = newX + deltaX;
       if (this.isFirst) {
         this.isFirst = false;
         if (this.defaultConfig.sliderY) {
-          if (Math.abs(absDistX) > Math.abs(absDistY)) {
+          if (Math.abs(deltaX) > Math.abs(deltaY)) {
             this.isMove = false;
           }
         } else {
-          if (Math.abs(absDistY) > Math.abs(absDistX)) {
+          if (Math.abs(deltaY) > Math.abs(deltaX)) {
             this.isMove = false;
           }
         }
       }
+      if (timeStamp - this.endTime > 300 && (absDeltaX < 10 && absDeltaY < 10)) {
+        return;
+      }
+
       if (this.defaultConfig.sliderY) {
         if (totalY > 0 || totalY < this.minY) {
-          // this.el.style.transitionDuration = '0ms';
-          totalY = this.startY + deltaY / 3;
+          totalY = newY + deltaY / 3;
         }
       } else {
         if (totalX > 0 || totalX < this.minX) {
-          // this.el.style.transitionDuration = '0ms';
-          totalX = this.startX + deltaX / 3;
+          totalX = newX + deltaX / 3;
         }
       }
-      // console.log(totalY);
+
       if (this.isMove) {
         if (this.defaultConfig.sliderY) {
           transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
@@ -138,70 +137,56 @@ export default {
           transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
         }
       }
-      if (timeStamp - this.startTime > 300) {
-        // console.log(true);
+      if ( timeStamp - this.startTime > 300 ) {
         this.startTime = timeStamp;
-        this.startX = transform(this.el, this.transformVal, 'translate3d').X;
-        this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
+        this.startX = newX;
+        this.startY = newY;
       }
-      // this.lastTimeDis = new Date().getTime() - this.lastTimeDis;
-      // this.lastDisX = changedTouches.pageX - this.lastX;
-      // this.lastDisY = changedTouches.pageY - this.lastY;
-      // this.lastX = changedTouches.pageX;
-      // this.lastY = changedTouches.pageY;
     },
+    /*滑动结束*/
     sliderEnd () {
-      let changedTouches = event.changedTouches[0];
-      let currentY = transform(this.el, this.transformVal, 'translate3d').Y;
-      let currentX = transform(this.el, this.transformVal, 'translate3d').X;
+      let newY = transform(this.el, this.transformVal, 'translate3d').Y;
+      let newX = transform(this.el, this.transformVal, 'translate3d').X;
+      // let totalY = newY;
+      // let totalX = newX;
       let duration = new Date().getTime() - this.startTime;
-      let newX = Math.round(transform(this.el, this.transformVal, 'translate3d').X);
-      let newY = Math.round(transform(this.el, this.transformVal, 'translate3d').Y);
-      let distanceX = Math.abs(newX - this.startX);
       let distanceY = Math.abs(newY - this.startY);
-      this.endTime = new Date().getTime();
-      // console.log(duration);
-      // console.log(distanceY);
-
-
-      // console.log(this.lastTimeDis);
-      // this.el.style.transtionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-      // this.el.style.transitionDuration = '300ms';
-      // let speedX = (this.lastDisX / this.lastTimeDis) ? (this.lastDisX / this.lastTimeDis) : 0;
-      // let speedY = (this.lastDisY / this.lastTimeDis) * 200 ? (this.lastDisY / this.lastTimeDis) * 200 : 0;
-      // console.log(Math.round(speedY));
-      // console.log(this.lastTimeDis);
-      // this.el.style.transitionDuration = '0ms';
-
-      // let currentStartY = transform(this.el, this.transformVal, 'translate3d').Y;
-      // let currentStartX = transform(this.el, this.transformVal, 'translate3d').X;
-      if (duration < 300) {
-        let momentumX = this.getMomentum(currentX, this.startX, duration, this.minX, this.elContent.clientWidth);
-        let momentumY = this.getMomentum(currentY, this.startY, duration, this.minY, this.elContent.clientHeight);
-        console.log(momentumY);
-      }
+      let distanceX = Math.abs(newX - this.startX);
+      let time = 0;
+      let momentumY = null;
+      let momentumX = null;
       if (newY > 0) {
         newY = 0;
         this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-        this.el.style.transitionDuration = '500ms';
+        this.el.style.transitionDuration = '600ms';
         transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
         return;
       } else if (newY < this.minY) {
         newY = this.minY;
         this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-        this.el.style.transitionDuration = '500ms';
+        this.el.style.transitionDuration = '600ms';
         transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
         return;
       }
+
+      if (duration < 300 ) {
+        momentumX = this.getMomentum(newX, this.startX, duration, this.minX,this.elContent.clientHeight);
+        momentumY = this.getMomentum(newY, this.startY, duration, this.minY,this.elContent.clientHeight);
+        console.log(momentumY);
+        newX = momentumX.destination;
+        newY = momentumY.destination;
+        time = Math.max(momentumX.duration, momentumY.duration);
+        this.isInTransition = 1;
+      }
+
       if (this.defaultConfig.sliderY) {
-        transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+        transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0 ');
       } else {
         transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
       }
-
+      this.endTime = new Date().getTime();
     },
     getMomentum (current, start, time, lowerMargin, wrapperSize, deceleration) {
-      // console.log('current:',current,'start:', start, 'time:', time, 'lowerMargin:',lowerMargin, 'wrapperSize:',wrapperSize, deceleration);
       let distance = current - start,
         speed = Math.abs(distance) / time,
         destination,
@@ -212,12 +197,10 @@ export default {
       destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
       duration = speed / deceleration;
       // console.log(destination);
-      // console.log(destination);
       if ( destination < lowerMargin ) {
         destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
         distance = Math.abs(destination - current);
         duration = distance / speed;
-
       } else if ( destination > 0 ) {
         destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
         distance = Math.abs(current) + destination;
@@ -228,6 +211,33 @@ export default {
         destination: Math.round(destination),
         duration: duration
       };
+      // console.log('current:',current,'start:', start, 'time:', time, 'lowerMargin:',lowerMargin, 'wrapperSize:',wrapperSize, deceleration);
+      // let distance = current - start,
+      //   speed = Math.abs(distance) / time,
+      //   destination,
+      //   duration;
+	  //
+      // deceleration = deceleration === undefined ? 0.0006 : deceleration;
+	  //
+      // destination = current + ( speed * speed ) / ( 2 * deceleration ) * ( distance < 0 ? -1 : 1 );
+      // duration = speed / deceleration;
+      // // console.log(destination);
+      // // console.log(destination);
+      // if ( destination < lowerMargin ) {
+      //   destination = wrapperSize ? lowerMargin - ( wrapperSize / 2.5 * ( speed / 8 ) ) : lowerMargin;
+      //   distance = Math.abs(destination - current);
+      //   duration = distance / speed;
+	  //
+      // } else if ( destination > 0 ) {
+      //   destination = wrapperSize ? wrapperSize / 2.5 * ( speed / 8 ) : 0;
+      //   distance = Math.abs(current) + destination;
+      //   duration = distance / speed;
+      // }
+
+      // return {
+      //   destination: Math.round(destination),
+      //   duration: duration
+      // };
     },
     refreshFn () {
       // setTimeout(() => {
