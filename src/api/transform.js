@@ -20,6 +20,7 @@ export default function transform (elem, obj, attr, val) {
           sVal += s + '(' + setVal + ')';
           break;
       }
+      console.log(sVal);
       elem.style.WebkitTransform = elem.style.transform = sVal;
     }
   } else {

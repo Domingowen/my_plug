@@ -200,6 +200,7 @@ export default {
           transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
           // this.el.style.transform = 'translate3d('+newX+',0,0)'
         }
+        this.transitionEnd()
         return;
       }
 
@@ -240,12 +241,38 @@ export default {
     getClient () {
       this.minY = this.elContent.clientHeight - this.el.offsetHeight <= 0 ? this.elContent.clientHeight - this.el.offsetHeight : 0;
       this.minX = this.elContent.clientWidth - this.el.offsetWidth <= 0 ? this.elContent.clientWidth - this.el.offsetWidth : 0;
+    },
+    transitionEnd () {
+
+      this.el.addEventListener('transitionend', () => {
+        // console.log(true);
+        let newY = transform(this.el, this.transformVal, 'translate3d').Y;
+        let newX = transform(this.el, this.transformVal, 'translate3d').X;
+        // console.log(newY);
+
+        if (newY > 0) {
+          newY = 0;
+          this.el.style.transitionDuration = '600ms';
+          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)';
+          transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+          return;
+        } else if (newY < this.minY) {
+          newY = this.minY;
+          this.el.style.transitionDuration = '600ms';
+          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)';
+          transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+          return;
+        }
+      }, false)
     }
   },
   mounted () {
     this.el = this.$refs.sliderContent;
     this.elContent = this.$refs.sliderTouch;
     transform(this.el, this.transformVal, 'translate3d', '0,0,0');
+
     document.addEventListener('touchstart', () => {
       event.preventDefault();
     });
