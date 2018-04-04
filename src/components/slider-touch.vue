@@ -192,12 +192,13 @@ export default {
         if (this.defaultConfig.sliderY) {
           this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
           this.el.style.transitionDuration = '600ms';
-          // transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0 ');
-          this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
+          transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
         } else {
           this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
           this.el.style.transitionDuration = '600ms';
           transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
+          // this.el.style.transform = 'translate3d('+newX+',0,0)'
         }
         return;
       }
