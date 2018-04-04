@@ -66,6 +66,7 @@ export default {
   * 1.所有的滑动只是过程,滑动结束才是对滑动的情况作出预测
   * 2.滑动的动画控制都在结束之后才执行,滑动的过程中不执行动画
   * 3.滑动数据都是在开始和过程生存储
+  * 4.动画结束之后再调用结束函数
   * */
   methods: {
     sliderStart () {
@@ -158,13 +159,11 @@ export default {
       // console.log(newY);
       if (newY > 0) {
         newY = 0;
-        this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
         this.el.style.transitionDuration = '600ms';
         transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
         return;
       } else if (newY < this.minY) {
         newY = this.minY;
-        this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
         this.el.style.transitionDuration = '600ms';
         transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
         return;
@@ -179,7 +178,8 @@ export default {
         time = Math.max(momentumY.duration);
         this.isInTransition = 1;
       }
-      // console.log(newY);
+      console.log(newY);
+      console.log(transform(this.el, this.transformVal, 'translate3d').Y);
       if (newX != transform(this.el, this.transformVal, 'translate3d').X || newY != transform(this.el, this.transformVal, 'translate3d').Y) {
         // console.log(newY);
         // console.log(this.maxScrollY);
@@ -190,12 +190,12 @@ export default {
         // console.log(newX);
         // console.log(newY);
         if (this.defaultConfig.sliderY) {
-          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
           this.el.style.transitionDuration = '600ms';
           transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
           // this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
         } else {
-          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
           this.el.style.transitionDuration = '600ms';
           transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
           // this.el.style.transform = 'translate3d('+newX+',0,0)'
@@ -243,28 +243,23 @@ export default {
       this.minX = this.elContent.clientWidth - this.el.offsetWidth <= 0 ? this.elContent.clientWidth - this.el.offsetWidth : 0;
     },
     transitionEnd () {
-
       this.el.addEventListener('transitionend', () => {
-        // console.log(true);
         let newY = transform(this.el, this.transformVal, 'translate3d').Y;
         let newX = transform(this.el, this.transformVal, 'translate3d').X;
-        // console.log(newY);
-
         if (newY > 0) {
           newY = 0;
           this.el.style.transitionDuration = '600ms';
           this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)';
           transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
           return;
         } else if (newY < this.minY) {
           newY = this.minY;
           this.el.style.transitionDuration = '600ms';
           this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)';
           transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
           return;
         }
+        // this.el.style.transitionDuration = '600ms';
       }, false)
     }
   },
