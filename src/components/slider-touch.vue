@@ -42,7 +42,8 @@ export default {
       isRun: true,
       lastTime: 0,
       startTime: 0,
-      endTime: 0
+      endTime: 0,
+      lastDeltaY: 0
     };
   },
   props: {
@@ -57,7 +58,6 @@ export default {
     }
   },
 
-
   /*
   * 1.所有的滑动只是过程,滑动结束才是对滑动的情况作出预测
   * 2.滑动的动画控制都在结束之后才执行,滑动的过程中不执行动画
@@ -66,142 +66,189 @@ export default {
   * 5.动画结束之后再调用结束函数
   * */
   methods: {
+    /*
+    * 滑屏滚动Iscroll的方法
+    * */
+    // sliderStart () {
+    //   this.getClient();
+    //   let changedTouches = event.changedTouches[0];
+    //   this.pointY = changedTouches.pageY;
+    //   this.pointX = changedTouches.pageX;
+    //   // this.lastY = this.pointY;
+    //   // this.lastX = this.pointX;
+    //   this.isMove = true;
+    //   this.isFirst = true;
+    //   this.el.style.transitionDuration = '0ms';
+    //   this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+    //   this.distY = 0;
+    //   this.distX = 0;
+    //   this.startTime = new Date().getTime();
+    //   this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
+    //   this.startX = transform(this.el, this.transformVal, 'translate3d').X;
+    // },
+    // /*滑动过程*/
+    // sliderMove (e) {
+    //   if (!this.isMove) {
+    //     return;
+    //   }
+    //   let timeStamp = new Date().getTime();
+    //   let newY = transform(this.el, this.transformVal, 'translate3d').Y;
+    //   let newX = transform(this.el, this.transformVal, 'translate3d').X;
+    //   let changedTouches = event.changedTouches[0];
+    //   let deltaY = changedTouches.pageY - this.pointY;
+    //   let deltaX = changedTouches.pageX - this.pointX;
+    //   this.pointY = changedTouches.pageY;
+    //   this.pointX = changedTouches.pageX;
+    //   this.distY += deltaY;
+    //   this.distX += deltaX;
+    //   let absDeltaY = Math.abs(deltaY);
+    //   let absDeltaX = Math.abs(deltaX);
+    //   let totalY = newY + deltaY;
+    //   let totalX = newX + deltaX;
+    //   if (this.isFirst) {
+    //     this.isFirst = false;
+    //     if (this.defaultConfig.sliderY) {
+    //       if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    //         this.isMove = false;
+    //       }
+    //     } else {
+    //       if (Math.abs(deltaY) > Math.abs(deltaX)) {
+    //         this.isMove = false;
+    //       }
+    //     }
+    //   }
+    //   if (timeStamp - this.endTime > 300 && (absDeltaX < 10 && absDeltaY < 10)) {
+    //     return;
+    //   }
+    //
+    //   if (this.defaultConfig.sliderY) {
+    //     if (totalY > 0 || totalY < this.minY) {
+    //       totalY = newY + deltaY / 3;
+    //     }
+    //   } else {
+    //     if (totalX > 0 || totalX < this.minX) {
+    //       totalX = newX + deltaX / 3;
+    //     }
+    //   }
+    //   if (this.isMove) {
+    //     if (this.defaultConfig.sliderY) {
+    //       transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
+    //     } else {
+    //       transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
+    //     }
+    //   }
+    //   if (timeStamp - this.startTime > 300) {
+    //     this.startTime = timeStamp;
+    //     this.startX = newX;
+    //     this.startY = newY;
+    //   }
+    // },
+    // /*滑动结束*/
+    // sliderEnd () {
+    //   this.endTime = new Date().getTime();
+    //   let newY = transform(this.el, this.transformVal, 'translate3d').Y;
+    //   let newX = transform(this.el, this.transformVal, 'translate3d').X;
+    //   // let totalY = newY;
+    //   // let totalX = newX;
+    //   let duration = new Date().getTime() - this.startTime;
+    //   let distanceY = Math.abs(newY - this.startY);
+    //   let distanceX = Math.abs(newX - this.startX);
+    //   let time = 0;
+    //   let momentumY = null;
+    //   let momentumX = null;
+    //   // console.log(newY);
+    //   if (newY > 0) {
+    //     newY = 0;
+    //     this.el.style.transitionDuration = '600ms';
+    //     transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+    //     return;
+    //   } else if (newY < this.minY) {
+    //     newY = this.minY;
+    //     this.el.style.transitionDuration = '600ms';
+    //     transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+    //     return;
+    //   }
+    //
+    //   if (duration < 300) {
+    //     // momentumX = this.getMomentum(newX, this.startX, duration, this.minX, this.elContent.clientWidth);
+    //     momentumY = this.getMomentum(newY, this.startY, duration, this.minY, this.elContent.clientHeight);
+    //     // newX = momentumX.destination;
+    //     newY = momentumY.destination;
+    //     console.log(momentumY);
+    //     time = Math.max(momentumY.duration);
+    //     this.isInTransition = 1;
+    //   }
+    //   // console.log(newY);
+    //   // console.log(transform(this.el, this.transformVal, 'translate3d').Y);
+    //   if (newX != transform(this.el, this.transformVal, 'translate3d').X || newY != transform(this.el, this.transformVal, 'translate3d').Y) {
+    //     // console.log(newY);
+    //     // console.log(this.maxScrollY);
+    //     // change easing function when scroller goes out of the boundaries
+    //     if (newX > 0 || newX < this.minX || newY > 0 || newY < this.minY) {
+    //       // easing = utils.ease.quadratic;
+    //     }
+    //     // console.log(newX);
+    //     // console.log(newY);
+    //     if (this.defaultConfig.sliderY) {
+    //       // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+    //       this.el.style.transitionDuration = '600ms';
+    //       transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
+    //       // this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
+    //     } else {
+    //       // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+    //       this.el.style.transitionDuration = '600ms';
+    //       transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
+    //       // this.el.style.transform = 'translate3d('+newX+',0,0)'
+    //     }
+    //     this.transitionEnd()
+    //     return;
+    //   }
+    //
+    // },
+
+
+    /*
+    *
+    * 用自己的方法重写滑屏滚动
+    * */
+
     sliderStart () {
       this.getClient();
-      let changedTouches = event.changedTouches[0];
-      this.pointY = changedTouches.pageY;
-      this.pointX = changedTouches.pageX;
-      // this.lastY = this.pointY;
-      // this.lastX = this.pointX;
-      this.isMove = true;
-      this.isFirst = true;
+      let changesTouches = event.changedTouches[0];
+      this.pointY = changesTouches.pageY;
+      this.lastDeltaY = changesTouches.pageY; // 记录当前的触摸下去的位置;
+      this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
+      this.startTime = new Date().getTime();
       this.el.style.transitionDuration = '0ms';
       this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
       this.distY = 0;
-      this.distX = 0;
-      this.startTime = new Date().getTime();
-      this.startY = transform(this.el, this.transformVal, 'translate3d').Y;
-      this.startX = transform(this.el, this.transformVal, 'translate3d').X;
     },
-    /*滑动过程*/
-    sliderMove (e) {
-      if (!this.isMove) {
-        return;
-      }
+    sliderMove () {
+      let changesTouches = event.changedTouches[0];
       let timeStamp = new Date().getTime();
-      let newY = transform(this.el, this.transformVal, 'translate3d').Y;
-      let newX = transform(this.el, this.transformVal, 'translate3d').X;
-      let changedTouches = event.changedTouches[0];
-      let deltaY = changedTouches.pageY - this.pointY;
-      let deltaX = changedTouches.pageX - this.pointX;
-      this.pointY = changedTouches.pageY;
-      this.pointX = changedTouches.pageX;
-      this.distY += deltaY;
-      this.distX += deltaX;
-      let absDeltaY = Math.abs(deltaY);
-      let absDeltaX = Math.abs(deltaX);
-      let totalY = newY + deltaY;
-      let totalX = newX + deltaX;
-      if (this.isFirst) {
-        this.isFirst = false;
-        if (this.defaultConfig.sliderY) {
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            this.isMove = false;
-          }
-        } else {
-          if (Math.abs(deltaY) > Math.abs(deltaX)) {
-            this.isMove = false;
-          }
-        }
-      }
-      if (timeStamp - this.endTime > 300 && (absDeltaX < 10 && absDeltaY < 10)) {
+      let deltaY = changesTouches.pageY - this.pointY;
+      let lastDeltaY = changesTouches.pageY - this.lastDeltaY; //实时更新两点之后的距离
+      this.distY += Math.abs(lastDeltaY);
+      // console.log(this.distY);
+      /*是否要启动滚动*/
+      // console.log(this.endTime);
+      if (timeStamp - this.endTime > 300 && (this.distY < 10)) {
+        // console.log(true);
         return;
       }
-
-      if (this.defaultConfig.sliderY) {
-        if (totalY > 0 || totalY < this.minY) {
-          totalY = newY + deltaY / 3;
-        }
-      } else {
-        if (totalX > 0 || totalX < this.minX) {
-          totalX = newX + deltaX / 3;
-        }
+      this.lastDeltaY = changesTouches.pageY;
+      let disY = deltaY + this.startY;
+      if (disY > 0 || disY < this.minY) {
+        let currentY = transform(this.el, this.transformVal, 'translate3d').Y;
+        currentY = currentY + deltaY / 3;
       }
-      if (this.isMove) {
-        if (this.defaultConfig.sliderY) {
-          transform(this.el, this.transformVal, 'translate3d', '0,' + totalY + ',0');
-        } else {
-          transform(this.el, this.transformVal, 'translate3d', '' + totalX + ',0,0');
-        }
-      }
-      if (timeStamp - this.startTime > 300) {
-        this.startTime = timeStamp;
-        this.startX = newX;
-        this.startY = newY;
-      }
+      transform(this.el, this.transformVal, 'translate3d', '0, '+disY+', 0');
     },
-    /*滑动结束*/
     sliderEnd () {
       this.endTime = new Date().getTime();
-      let newY = transform(this.el, this.transformVal, 'translate3d').Y;
-      let newX = transform(this.el, this.transformVal, 'translate3d').X;
-      // let totalY = newY;
-      // let totalX = newX;
-      let duration = new Date().getTime() - this.startTime;
-      let distanceY = Math.abs(newY - this.startY);
-      let distanceX = Math.abs(newX - this.startX);
-      let time = 0;
-      let momentumY = null;
-      let momentumX = null;
-      // console.log(newY);
-      if (newY > 0) {
-        newY = 0;
-        this.el.style.transitionDuration = '600ms';
-        transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
-        return;
-      } else if (newY < this.minY) {
-        newY = this.minY;
-        this.el.style.transitionDuration = '600ms';
-        transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
-        return;
-      }
-
-      if (duration < 300) {
-        // momentumX = this.getMomentum(newX, this.startX, duration, this.minX, this.elContent.clientWidth);
-        momentumY = this.getMomentum(newY, this.startY, duration, this.minY, this.elContent.clientHeight);
-        // newX = momentumX.destination;
-        newY = momentumY.destination;
-        console.log(momentumY);
-        time = Math.max(momentumY.duration);
-        this.isInTransition = 1;
-      }
-      console.log(newY);
-      console.log(transform(this.el, this.transformVal, 'translate3d').Y);
-      if (newX != transform(this.el, this.transformVal, 'translate3d').X || newY != transform(this.el, this.transformVal, 'translate3d').Y) {
-        // console.log(newY);
-        // console.log(this.maxScrollY);
-        // change easing function when scroller goes out of the boundaries
-        if (newX > 0 || newX < this.minX || newY > 0 || newY < this.minY) {
-          // easing = utils.ease.quadratic;
-        }
-        // console.log(newX);
-        // console.log(newY);
-        if (this.defaultConfig.sliderY) {
-          // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-          this.el.style.transitionDuration = '600ms';
-          transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
-          // this.el.style.transform = 'translate3d(0,'+newY +'px,0)'
-        } else {
-          // this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
-          this.el.style.transitionDuration = '600ms';
-          transform(this.el, this.transformVal, 'translate3d', '' + newX + ',0,0');
-          // this.el.style.transform = 'translate3d('+newX+',0,0)'
-        }
-        this.transitionEnd()
-        return;
-      }
-
     },
+
+
     getMomentum (current, start, time, lowerMargin, wrapperSize, deceleration) {
       // console.log(current, start, time, lowerMargin, wrapperSize);
       let distance = current - start,
@@ -238,6 +285,9 @@ export default {
     getClient () {
       this.minY = this.elContent.clientHeight - this.el.offsetHeight <= 0 ? this.elContent.clientHeight - this.el.offsetHeight : 0;
       this.minX = this.elContent.clientWidth - this.el.offsetWidth <= 0 ? this.elContent.clientWidth - this.el.offsetWidth : 0;
+    },
+    setMoment () {
+
     },
     transitionEnd () {
       this.el.addEventListener('transitionend', () => {
