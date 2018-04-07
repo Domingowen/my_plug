@@ -1,3 +1,4 @@
+
 <template>
   <div class="slider_touch">
     <!--<div class="slider_touch_content" ref="sliderTouch">-->
@@ -13,6 +14,7 @@
   </div>
 </template>
 <script>
+/* eslint-disable */
 import transform from '../api/transform';
 export default {
   name: 'slider_touch',
@@ -33,14 +35,8 @@ export default {
       },
       minY: null,
       minX: null,
-      lastTimeDis: null,
-      lastDisY: null,
-      lastDisX: null,
-      lastY: null,
-      lastX: null,
       isMove: true,
       isFirst: true,
-      step: 1,
       deltaX: 0,
       deltaY: 0,
       isRun: true,
@@ -66,7 +62,8 @@ export default {
   * 1.所有的滑动只是过程,滑动结束才是对滑动的情况作出预测
   * 2.滑动的动画控制都在结束之后才执行,滑动的过程中不执行动画
   * 3.滑动数据都是在开始和过程生存储
-  * 4.动画结束之后再调用结束函数
+  * 4.惯性运动
+  * 5.动画结束之后再调用结束函数
   * */
   methods: {
     sliderStart () {
@@ -249,7 +246,7 @@ export default {
         if (newY > 0) {
           newY = 0;
           this.el.style.transitionDuration = '600ms';
-          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1, 1)';
+          this.el.style.transitionTimingFunction = 'cubic-bezier(0.1, 0.57, 0.1,  1)';
           transform(this.el, this.transformVal, 'translate3d', '0,' + newY + ',0');
           return;
         } else if (newY < this.minY) {
@@ -263,6 +260,7 @@ export default {
       }, false)
     }
   },
+
   mounted () {
     this.el = this.$refs.sliderContent;
     this.elContent = this.$refs.sliderTouch;
